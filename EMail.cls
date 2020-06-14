@@ -11,59 +11,59 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'This module contains the Microsoft Outlook related procedures.
+'Deze module bevat de Microsoft Outlook gerelateerde procedures.
 Option Explicit
-Private WithEvents EMail As Outlook.MailItem          'Contains a reference to a Microsoft Outlook e-mail message.
+Private WithEvents EMail As Outlook.MailItem          'Bevat een verwijzing naar een Microsoft Outlook e-mail bericht.
 Attribute EMail.VB_VarHelpID = -1
-Private WithEvents MSOutlook As Outlook.Application   'Contains a reference to Microsoft Outlook.
+Private WithEvents MSOutlook As Outlook.Application   'Bevat een verwijzing naar Microsoft Outlook.
 Attribute MSOutlook.VB_VarHelpID = -1
 
-'This procedure manages the Microsoft Outlook status information.
-Private Function OutlookAlreadyActive(Optional NewOutlookAlreadyActive As Variant) As Boolean
-On Error GoTo ErrorTrap
-Static CurrentOutlookAlreadyActive As Boolean
+'Deze procedure beheert de Microsoft Outlook status informatie.
+Private Function OutlookReedsActief(Optional NieuweOutlookReedsActief As Variant) As Boolean
+On Error GoTo Fout
+Static HuidigeOutlookReedsActief As Boolean
 
-   If Not IsMissing(NewOutlookAlreadyActive) Then CurrentOutlookAlreadyActive = CBool(NewOutlookAlreadyActive)
+   If Not IsMissing(NieuweOutlookReedsActief) Then HuidigeOutlookReedsActief = CBool(NieuweOutlookReedsActief)
 
-EndRoutine:
-   OutlookAlreadyActive = CurrentOutlookAlreadyActive
+EindeProcedure:
+   OutlookReedsActief = HuidigeOutlookReedsActief
    Exit Function
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procedure adds the specified exported query results to an e-mail.
-Public Sub AddQueryResults(Optional ExportPath As Variant = vbNullString, Optional ExportPaths As Collection = Nothing)
-On Error GoTo ErrorTrap
+'Deze procedure voegt de opgegeven geëxporteerde query resultaten toe aan een e-mail.
+Public Sub VoegQueryResultatenToe(Optional ExportPad As Variant = vbNullString, Optional ExportPaden As Collection = Nothing)
+On Error GoTo Fout
 
    If Not (EMail Is Nothing Or MSOutlook Is Nothing) Then
-      If ExportPaths Is Nothing Then
-         EMail.Attachments.Add ExportPath
+      If ExportPaden Is Nothing Then
+         EMail.Attachments.Add ExportPad
       Else
-         For Each ExportPath In ExportPaths
-            If Not ExportPath = vbNullString Then EMail.Attachments.Add ExportPath
-         Next ExportPath
+         For Each ExportPad In ExportPaden
+            If Not ExportPad = vbNullString Then EMail.Attachments.Add ExportPad
+         Next ExportPad
       End If
    
-      If Settings().ExportAutoSend Then EMail.Send
+      If Instellingen().ExportAutoVerzenden Then EMail.Send
    End If
 
-EndRoutine:
+EindeProcedure:
    Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
 
-'This procedure initializes this module.
+'Deze procedure stelt deze module in.
 Private Sub Class_Initialize()
-On Error GoTo ErrorTrap
-   OutlookAlreadyActive NewOutlookAlreadyActive:=False
+On Error GoTo Fout
+   OutlookReedsActief NieuweOutlookReedsActief:=False
 
    Set MSOutlook = New Outlook.Application
    
@@ -72,77 +72,77 @@ On Error GoTo ErrorTrap
       EMail.GetInspector.Activate
    End If
 
-EndRoutine:
+EindeProcedure:
    Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
 
-'This procedure is executed when this module is closed.
+'Deze procedure wordt uitgevoerd wanneer deze module wordt afgesloten.
 Private Sub Class_Terminate()
-On Error GoTo ErrorTrap
+On Error GoTo Fout
    Set EMail = Nothing
    Set MSOutlook = Nothing
-EndRoutine:
+EindeProcedure:
    Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
 
-'This procedure is executed when a new e-mail is opened.
+'Deze procedure wordt uitgevoerd wanneer een nieuwe e-mail wordt geopend.
 Private Sub EMail_Open(Cancel As Boolean)
-On Error GoTo ErrorTrap
-   With Settings()
+On Error GoTo Fout
+   With Instellingen()
       If Not EMail Is Nothing Then
-         EMail.Body = ReplaceSymbols(.EMailText)
-         EMail.CC = .ExportCCRecipient
-         EMail.SentOnBehalfOfName = .ExportSender
-         EMail.Subject = ReplaceSymbols(.ExportSubject)
-         EMail.To = .ExportRecipient
+         EMail.Body = VervangSymbolen(.EMailTekst)
+         EMail.CC = .ExportCCOntvanger
+         EMail.SentOnBehalfOfName = .ExportAfzender
+         EMail.Subject = VervangSymbolen(.ExportOnderwerp)
+         EMail.To = .ExportOntvanger
       End If
    End With
-EndRoutine:
+EindeProcedure:
    Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure is executed when an e-mail is closed.
+'Deze procedure wordt uitgevoerd wanneer een e-mail wordt afgesloten.
 Private Sub EMail_Unload()
-On Error GoTo ErrorTrap
-   If Not (Settings().QueryAutoClose Or OutlookAlreadyActive()) Then
+On Error GoTo Fout
+   If Not (Instellingen().QueryAutoSluiten Or OutlookReedsActief()) Then
       If Not MSOutlook Is Nothing Then
          MSOutlook.GetNamespace("MAPI").Logoff
          MSOutlook.Quit
       End If
    End If
-EndRoutine:
+EindeProcedure:
    Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
 
-'This procedure is executed when Microsoft Outlook is started.
+'Deze procedure wordt uitgevoerd wanneer Microsoft Outlook wordt gestart.
 Private Sub MSOutlook_Startup()
-On Error GoTo ErrorTrap
-   OutlookAlreadyActive NewOutlookAlreadyActive:=True
-EndRoutine:
+On Error GoTo Fout
+   OutlookReedsActief NieuweOutlookReedsActief:=True
+EindeProcedure:
    Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=True) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
 

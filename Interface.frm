@@ -1,22 +1,22 @@
 VERSION 5.00
-Begin VB.Form InterfaceWindow 
+Begin VB.Form InterfaceVenster 
    BorderStyle     =   1  'Fixed Single
-   ClientHeight    =   8172
-   ClientLeft      =   48
-   ClientTop       =   612
-   ClientWidth     =   9264
+   ClientHeight    =   8175
+   ClientLeft      =   45
+   ClientTop       =   615
+   ClientWidth     =   9270
    Icon            =   "Interface.frx":0000
    KeyPreview      =   -1  'True
    MaxButton       =   0   'False
-   ScaleHeight     =   681
+   ScaleHeight     =   545
    ScaleMode       =   3  'Pixel
-   ScaleWidth      =   772
+   ScaleWidth      =   618
    StartUpPosition =   2  'CenterScreen
-   Begin VB.TextBox StatusBox 
+   Begin VB.TextBox StatusVeld 
       BackColor       =   &H8000000F&
       BeginProperty Font 
          Name            =   "Fixedsys"
-         Size            =   7.2
+         Size            =   9
          Charset         =   0
          Weight          =   400
          Underline       =   0   'False
@@ -38,7 +38,7 @@ Begin VB.Form InterfaceWindow
       ClipControls    =   0   'False
       BeginProperty Font 
          Name            =   "MS Sans Serif"
-         Size            =   7.8
+         Size            =   8.25
          Charset         =   0
          Weight          =   700
          Underline       =   0   'False
@@ -50,11 +50,11 @@ Begin VB.Form InterfaceWindow
       TabIndex        =   19
       Top             =   120
       Width           =   4695
-      Begin VB.CommandButton ExportResultButton 
-         Caption         =   "Export &Result"
+      Begin VB.CommandButton ResultaatExporterenKnop 
+         Caption         =   "Resultaat &Exporteren"
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -67,11 +67,11 @@ Begin VB.Form InterfaceWindow
          Top             =   2160
          Width           =   2055
       End
-      Begin VB.CheckBox OpenResultAfterExportBox 
-         Caption         =   "&Open result after export."
+      Begin VB.CheckBox OpenResultaatNaExportVeld 
+         Caption         =   "&Open resultaat na export."
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -84,18 +84,18 @@ Begin VB.Form InterfaceWindow
          Top             =   1200
          Width           =   4452
       End
-      Begin VB.TextBox ExportPathBox 
+      Begin VB.TextBox ExportPadVeld 
          Height          =   285
          Left            =   120
          TabIndex        =   6
          Top             =   600
          Width           =   3975
       End
-      Begin VB.CommandButton SelectExportPathButton 
+      Begin VB.CommandButton ExportPadSelecterenKnop 
          Appearance      =   0  'Flat
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -110,11 +110,11 @@ Begin VB.Form InterfaceWindow
          Top             =   600
          Width           =   375
       End
-      Begin VB.CheckBox CreateEMailWithExportAttachedBox 
-         Caption         =   "Create e-&mail with export attached."
+      Begin VB.CheckBox MaakEMailMetExportBijgevoegdVeld 
+         Caption         =   "Maak e-&mail met export bijgevoegd."
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -127,11 +127,11 @@ Begin VB.Form InterfaceWindow
          Top             =   1440
          Width           =   4452
       End
-      Begin VB.CheckBox AutomaticallyExportResultBox 
-         Caption         =   "&Automatically export result after query."
+      Begin VB.CheckBox AutomatischResultaatExporterenVeld 
+         Caption         =   "&Automatisch resultaat exporteren na query."
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -144,11 +144,11 @@ Begin VB.Form InterfaceWindow
          Top             =   960
          Width           =   4452
       End
-      Begin VB.Label ExportResultToLabel 
-         Caption         =   "Export result to:"
+      Begin VB.Label ExporteerResultaatNaarLabel 
+         Caption         =   "Exporteer resultaat naar:"
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -166,7 +166,7 @@ Begin VB.Form InterfaceWindow
       Caption         =   "Query"
       BeginProperty Font 
          Name            =   "MS Sans Serif"
-         Size            =   7.8
+         Size            =   8.25
          Charset         =   0
          Weight          =   700
          Underline       =   0   'False
@@ -178,12 +178,12 @@ Begin VB.Form InterfaceWindow
       TabIndex        =   14
       Top             =   120
       Width           =   4215
-      Begin VB.CommandButton ExecuteQueryButton 
-         Caption         =   "&Execute Query"
+      Begin VB.CommandButton QueryUitvoerenKnop 
+         Caption         =   "Query &Uitvoeren"
          Default         =   -1  'True
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -196,7 +196,7 @@ Begin VB.Form InterfaceWindow
          Top             =   2160
          Width           =   1575
       End
-      Begin VB.TextBox QueryPathBox 
+      Begin VB.TextBox QueryPadVeld 
          Height          =   285
          Left            =   840
          OLEDropMode     =   1  'Manual
@@ -204,10 +204,10 @@ Begin VB.Form InterfaceWindow
          Top             =   360
          Width           =   2415
       End
-      Begin VB.CommandButton SelectQueryButton 
+      Begin VB.CommandButton QuerySelecterenKnop 
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -222,11 +222,11 @@ Begin VB.Form InterfaceWindow
          Top             =   360
          Width           =   375
       End
-      Begin VB.CommandButton OpenQueryButton 
+      Begin VB.CommandButton QueryOpenenKnop 
          Appearance      =   0  'Flat
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -245,7 +245,7 @@ Begin VB.Form InterfaceWindow
          Caption         =   "Parameters"
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -257,7 +257,7 @@ Begin VB.Form InterfaceWindow
          TabIndex        =   15
          Top             =   720
          Width           =   3975
-         Begin VB.VScrollBar ParameterFrameScrollBar 
+         Begin VB.VScrollBar ParameterFrameSchuifBalk 
             Height          =   1215
             Left            =   3720
             Max             =   0
@@ -265,18 +265,18 @@ Begin VB.Form InterfaceWindow
             Top             =   120
             Width           =   255
          End
-         Begin VB.PictureBox ParameterBoxContainer 
+         Begin VB.PictureBox ParameterVeldHouder 
             BorderStyle     =   0  'None
             Height          =   975
             Left            =   120
-            ScaleHeight     =   81
+            ScaleHeight     =   65
             ScaleMode       =   3  'Pixel
-            ScaleWidth      =   301
+            ScaleWidth      =   241
             TabIndex        =   16
             TabStop         =   0   'False
             Top             =   240
             Width           =   3615
-            Begin VB.TextBox ParameterBoxes 
+            Begin VB.TextBox ParameterVelden 
                Height          =   285
                Index           =   0
                Left            =   1440
@@ -291,7 +291,7 @@ Begin VB.Form InterfaceWindow
                Caption         =   "Parameter:"
                BeginProperty Font 
                   Name            =   "MS Sans Serif"
-                  Size            =   7.8
+                  Size            =   8.25
                   Charset         =   0
                   Weight          =   700
                   Underline       =   0   'False
@@ -312,7 +312,7 @@ Begin VB.Form InterfaceWindow
          Caption         =   "Query:"
          BeginProperty Font 
             Name            =   "MS Sans Serif"
-            Size            =   7.8
+            Size            =   8.25
             Charset         =   0
             Weight          =   700
             Underline       =   0   'False
@@ -326,11 +326,11 @@ Begin VB.Form InterfaceWindow
          Width           =   615
       End
    End
-   Begin VB.Frame ResultFrame 
-      Caption         =   "Result"
+   Begin VB.Frame ResultaatFrame 
+      Caption         =   "Resultaat"
       BeginProperty Font 
          Name            =   "MS Sans Serif"
-         Size            =   7.8
+         Size            =   8.25
          Charset         =   0
          Weight          =   700
          Underline       =   0   'False
@@ -342,10 +342,10 @@ Begin VB.Form InterfaceWindow
       TabIndex        =   13
       Top             =   3000
       Width           =   9015
-      Begin VB.TextBox QueryResultBox 
+      Begin VB.TextBox QueryResultaatVeld 
          BeginProperty Font 
             Name            =   "Fixedsys"
-            Size            =   7.2
+            Size            =   9
             Charset         =   0
             Weight          =   400
             Underline       =   0   'False
@@ -362,493 +362,467 @@ Begin VB.Form InterfaceWindow
          Width           =   8775
       End
    End
-   Begin VB.Menu ProgramMainMenu 
-      Caption         =   "&Program"
-      Begin VB.Menu InformationMenu 
-         Caption         =   "&Information"
+   Begin VB.Menu ProgrammaHoofdMenu 
+      Caption         =   "&Programma"
+      Begin VB.Menu InformatieMenu 
+         Caption         =   "&Informatie"
          Shortcut        =   ^I
       End
-      Begin VB.Menu CloseMenu 
-         Caption         =   "&Close"
-         Shortcut        =   ^Q
+      Begin VB.Menu SluitenMenu 
+         Caption         =   "&Sluiten"
+         Shortcut        =   ^S
       End
    End
 End
-Attribute VB_Name = "InterfaceWindow"
+Attribute VB_Name = "InterfaceVenster"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'This module contains this program's interface window.
+'Deze module bevat het interfacevenster van dit programma.
 Option Explicit
 
-'This procedure adjusts the scrollbar so that the specified parameter box becomes visible.
-Private Sub AdjustScrollBar(BoxIndex As Long)
-On Error GoTo ErrorTrap
-Dim Index As Long
-Dim Row As Long
 
-   Row = 0
-   For Index = ParameterBoxes.LBound To BoxIndex
-      If ParameterBoxes(Index).Visible Then Row = Row + 1
-   Next Index
+'Deze procedure geeft opdracht om het queryresultaat te exporteren.
+Private Sub GeefExportOpdracht()
+On Error GoTo Fout
+Dim EMail As EMailClass
+Dim ExportPad As String
 
-EndRoutine:
-   ParameterFrameScrollBar.Value = Row - 1
-   Exit Sub
+   ExportPad = ExportPadVeld.Text
+   If ExportPad = vbNullString Then
+      MsgBox "Geen export pad opgegeven.", vbExclamation
+   ElseIf Me.Visible Then
+      Screen.MousePointer = vbHourglass
+      ResultaatExporterenKnop.Enabled = False
+      ToonStatus "Bezig met het exporteren van het queryresultaat..." & vbCrLf
    
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+      ExportPad = BestandsSysteem().GetAbsolutePathName(VerwijderAanhalingsTekens(Trim$(VervangSymbolen(ExportPad))))
+
+      If BestandsSysteem().FolderExists(BestandsSysteem().GetParentFolderName(ExportPad)) Then
+         If ExporteerResultaat(ExportPad) Then
+            If BestandsSysteem().FileExists(ExportPad) Then
+               If OpenResultaatNaExportVeld.Value = vbChecked Then
+                  ToonStatus "De export wordt automatisch geopend..." & vbCrLf
+                  ControleerOpAPIFout ShellExecuteA(CLng(0), "open", ExportPad, vbNullString, vbNullString, SW_SHOWNORMAL)
+               End If
+               If MaakEMailMetExportBijgevoegdVeld.Value = vbChecked Then
+                  ToonStatus "Bezig met het maken van de e-mail met de export..." & vbCrLf
+                  Set EMail = New EMailClass
+                  EMail.VoegQueryResultatenToe ExportPad
+                  Set EMail = Nothing
+               End If
+            End If
+            ToonStatus "Exporteren gereed." & vbCrLf
+         Else
+            ToonStatus "Export afgebroken." & vbCrLf
+         End If
+      Else
+         MsgBox "Ongeldig export pad." & vbCr & "Huidig pad: " & CurDir$(), vbExclamation
+         ToonStatus "Ongeldig export pad." & vbCrLf
+      End If
+   End If
+
+EindeProcedure:
+   ResultaatExporterenKnop.Enabled = True
+   Screen.MousePointer = vbDefault
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-
-'This procedure adjusts this window to the selected query.
-Private Sub AdjustWindow()
-On Error GoTo ErrorTrap
-Dim BoxIndex As Long
-Dim FirstParameter As Long
-Dim LastParameter As Long
-Dim ParameterIndex As Long
-Dim VisibleBoxes As Long
-
-   QueryParameters , , , FirstParameter, LastParameter
+'Deze procedure geeft de opdracht om de geselecteerde query met de opgegeven parameters uit te voeren.
+Private Sub GeefQueryOpdracht()
+On Error GoTo Fout
+   If Not Query().Code = vbNullString Then
+      QueryUitvoerenKnop.Enabled = False
+      If ParametersGeldig(ParameterVelden) Then
+         Screen.MousePointer = vbHourglass
+         ToonStatus "Bezig met het uitvoeren van de query..." & vbCrLf
    
-   If Not (FirstParameter = NO_PARAMETER And LastParameter = NO_PARAMETER) Then
-      ParameterIndex = FirstParameter
-      VisibleBoxes = 0
-      BoxIndex = ParameterBoxes.LBound
-      Do While ParameterIndex <= LastParameter
-         If BoxIndex > ParameterBoxes.UBound Then
-            Load ParameterLabel(BoxIndex)
-            Load ParameterBoxes(BoxIndex)
-            ParameterLabel(BoxIndex).Top = (VisibleBoxes * (ParameterLabel(BoxIndex).Height * 1.75))
-            ParameterBoxes(BoxIndex).Top = ParameterLabel(BoxIndex).Top
+         QueryResultaten , ResultatenVerwijderen:=True
+         VoerQueryUit Query().Code
+   
+         If VerbindingGeopend(Verbinding()) Then
+            ToonQueryResultaat QueryResultaatVeld, ResultaatIndex:=0
+
+            If Verbinding().Errors.Count = 0 Then
+               If AutomatischResultaatExporterenVeld.Value = vbChecked Then GeefExportOpdracht
+            Else
+               ToonStatus FoutenLijstTekst(Verbinding().Errors)
+            End If
+   
+            Verbinding , , Reset:=True
+         End If
+      End If
+   End If
+EindeProcedure:
+   QueryUitvoerenKnop.Enabled = ((Not (Query().Pad = vbNullString)) And VerbindingGeopend(Verbinding()))
+   Screen.MousePointer = vbDefault
+
+   If (Instellingen().QueryAutoSluiten) Or (Not VerwerkSessieLijst() = vbNullString) Then Unload Me
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure past dit venster aan de geselecteerde query aan.
+Private Sub PasVensterAan()
+On Error GoTo Fout
+Dim EersteParameter As Long
+Dim LaatsteParameter As Long
+Dim ParameterIndex As Long
+Dim VeldIndex As Long
+Dim ZichtbareVelden As Long
+
+   QueryParameters , , , EersteParameter, LaatsteParameter
+
+   If Not (EersteParameter = GEEN_PARAMETER And LaatsteParameter = GEEN_PARAMETER) Then
+      ParameterIndex = EersteParameter
+      ZichtbareVelden = 0
+      VeldIndex = ParameterVelden.LBound
+      Do While ParameterIndex <= LaatsteParameter
+         If VeldIndex > ParameterVelden.UBound Then
+            Load ParameterLabel(VeldIndex)
+            Load ParameterVelden(VeldIndex)
+            ParameterLabel(VeldIndex).Top = (ZichtbareVelden * (ParameterLabel(VeldIndex).Height * 1.75))
+            ParameterVelden(VeldIndex).Top = ParameterLabel(VeldIndex).Top
          End If
 
          With QueryParameters(, ParameterIndex)
-            ParameterLabel(BoxIndex).Caption = .ParameterName & ":"
-            ParameterLabel(BoxIndex).Enabled = True
-            ParameterLabel(BoxIndex).ToolTipText = Left$(ParameterLabel(BoxIndex).Caption, Len(ParameterLabel(BoxIndex).Caption) - 1)
-            ParameterLabel(BoxIndex).Visible = .InputBoxIsVisible
-         
-            ParameterBoxes(BoxIndex).Enabled = True
-            ParameterBoxes(BoxIndex).Locked = (.Mask = vbNullString)
-            ParameterBoxes(BoxIndex).MaxLength = Len(.Mask)
-            ParameterBoxes(BoxIndex).TabIndex = (OpenQueryButton.TabIndex + 1) + BoxIndex
-            ParameterBoxes(BoxIndex).Text = .DefaultValue & Mid$(.FixedMask, Len(.DefaultValue) + 1)
-            If Not Trim$(.Comments) = vbNullString Then ParameterBoxes(BoxIndex).ToolTipText = .Comments
-            ParameterBoxes(BoxIndex).Visible = .InputBoxIsVisible
-            If ParameterBoxes(BoxIndex).Visible Then
+            ParameterLabel(VeldIndex).Caption = .ParameterNaam & ":"
+            ParameterLabel(VeldIndex).Enabled = True
+            ParameterLabel(VeldIndex).ToolTipText = Left$(ParameterLabel(VeldIndex).Caption, Len(ParameterLabel(VeldIndex).Caption) - 1)
+            ParameterLabel(VeldIndex).Visible = .VeldIsZichtbaar
+
+            ParameterVelden(VeldIndex).Enabled = True
+            ParameterVelden(VeldIndex).Locked = (.Masker = vbNullString)
+            ParameterVelden(VeldIndex).MaxLength = Len(.Masker)
+            ParameterVelden(VeldIndex).TabIndex = (QueryOpenenKnop.TabIndex + 1) + VeldIndex
+            ParameterVelden(VeldIndex).Text = .StandaardWaarde & Mid$(.Masker, Len(.StandaardWaarde) + 1)
+            If Not Trim$(.Commentaar) = vbNullString Then ParameterVelden(VeldIndex).ToolTipText = .Commentaar
+            ParameterVelden(VeldIndex).Visible = .VeldIsZichtbaar
+            If ParameterVelden(VeldIndex).Visible Then
                ParametersFrame.Enabled = True
-               VisibleBoxes = VisibleBoxes + 1
+               ZichtbareVelden = ZichtbareVelden + 1
             End If
          End With
 
          ParameterIndex = ParameterIndex + 1
-         BoxIndex = BoxIndex + 1
+         VeldIndex = VeldIndex + 1
       Loop
 
-      ParameterFrameScrollBar.Enabled = True
-      ParameterFrameScrollBar.Max = VisibleBoxes
-      ParameterFrameScrollBar.Value = 0
-         
-      For BoxIndex = ParameterBoxes.LBound To ParameterBoxes.UBound
-         If ParameterBoxes(BoxIndex).Visible Then
-            ParameterBoxes(BoxIndex).SetFocus
+      ParameterFrameSchuifBalk.Enabled = True
+      ParameterFrameSchuifBalk.Max = ZichtbareVelden
+      ParameterFrameSchuifBalk.Value = 0
+
+      For VeldIndex = ParameterVelden.LBound To ParameterVelden.UBound
+         If ParameterVelden(VeldIndex).Visible Then
+            ParameterVelden(VeldIndex).SetFocus
             Exit For
          End If
-      Next BoxIndex
+      Next VeldIndex
    End If
-    
-   ExecuteQueryButton.Enabled = ((Not (Query().Path = vbNullString)) And ConnectionOpened(Connection()))
-   If ExecuteQueryButton.Enabled And VisibleBoxes = 0 Then ExecuteQueryButton.SetFocus
-     
-   If Not Query().Path = vbNullString Then
-      Me.Caption = App.Title & " " & ProgramVersion() & " - " & Query().Path
-      DisplayStatus "Query: " & Query().Path & vbCrLf
-   End If
-   
-   QueryPathBox.Text = Unquote(Query().Path)
-   QueryPathBox.SelStart = 0
-   If Not QueryPathBox.Text = vbNullString Then QueryPathBox.SelStart = Len(QueryPathBox.Text) - 1
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-'This procedure gives the command to display the specified/already loaded query.
-Private Sub DisplayQuery(Optional Path As String = vbNullString)
-On Error GoTo ErrorTrap
-   If Not BatchModeActive() Then
-      If Path = vbNullString Then
-         QueryParameters Query().Code
-      Else
-         QueryParameters Query(Unquote(Path)).Code
-      End If
-   End If
-   
-   QueryResults , RemoveResults:=True
-   ResetWindow
 
-   AdjustWindow
-   
-   If Settings().QueryAutoExecute Then GiveQueryCommand
-   
-EndRoutine:
+   QueryUitvoerenKnop.Enabled = ((Not (Query().Pad = vbNullString)) And VerbindingGeopend(Verbinding()))
+   If QueryUitvoerenKnop.Enabled And ZichtbareVelden = 0 Then QueryUitvoerenKnop.SetFocus
+
+   If Not Query().Pad = vbNullString Then
+      Me.Caption = App.Title & " " & ProgrammaVersie() & " - " & Query().Pad
+      ToonStatus "Query: " & Query().Pad & vbCrLf
+   End If
+
+   QueryPadVeld.Text = VerwijderAanhalingsTekens(Query().Pad)
+   QueryPadVeld.SelStart = 0
+   If Not QueryPadVeld.Text = vbNullString Then QueryPadVeld.SelStart = Len(QueryPadVeld.Text) - 1
+
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-
-'This procedure gives the command to export the query result.
-Private Sub GiveExportCommand()
-On Error GoTo ErrorTrap
-Dim EMail As EMailClass
-Dim ExportPath As String
-
-   ExportPath = ExportPathBox.Text
-   If ExportPath = vbNullString Then
-      MsgBox "No export path specified.", vbExclamation
-   ElseIf Me.Visible Then
-      Screen.MousePointer = vbHourglass
-      ExportResultButton.Enabled = False
-      DisplayStatus "Busy exporting the query result..." & vbCrLf
-      
-      ExportPath = FileSystemO().GetAbsolutePathName(Unquote(Trim$(ReplaceSymbols(ExportPath))))
-      
-      If FileSystemO().FolderExists(FileSystemO().GetParentFolderName(ExportPath)) Then
-         If ExportResult(ExportPath) Then
-            If FileSystemO().FileExists(ExportPath) Then
-               If OpenResultAfterExportBox.Value = vbChecked Then
-                  DisplayStatus "The export will be opened automatically..." & vbCrLf
-                  CheckForAPIError ShellExecuteA(CLng(0), "open", ExportPath, vbNullString, vbNullString, SW_SHOWNORMAL)
-               End If
-               If CreateEMailWithExportAttachedBox.Value = vbChecked Then
-                  DisplayStatus "Busy creating the e-mail containing the export..." & vbCrLf
-                  Set EMail = New EMailClass
-                  EMail.AddQueryResults ExportPath
-                  Set EMail = Nothing
-               End If
-            End If
-            DisplayStatus "Finished export." & vbCrLf
-         Else
-            DisplayStatus "Export canceled." & vbCrLf
-         End If
-      Else
-         MsgBox "Invalid export path." & vbCr & "Current path: " & CurDir$(), vbExclamation
-         DisplayStatus "Invalid export path." & vbCrLf
-      End If
-   End If
-   
-EndRoutine:
-   ExportResultButton.Enabled = True
-   Screen.MousePointer = vbDefault
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-'This procedure gives the command to excute the selected query with the specified parameters.
-Private Sub GiveQueryCommand()
-On Error GoTo ErrorTrap
-   If Not Query().Code = vbNullString Then
-      ExecuteQueryButton.Enabled = False
-      If ParametersValid(ParameterBoxes) Then
-         Screen.MousePointer = vbHourglass
-         DisplayStatus "Busy executing the query..." & vbCrLf
-         
-         QueryResults , RemoveResults:=True
-         ExecuteQuery Query().Code
-   
-         If ConnectionOpened(Connection()) Then
-            DisplayQueryResult QueryResultBox, ResultIndex:=0
-
-            If Connection().Errors.Count = 0 Then
-               If AutomaticallyExportResultBox.Value = vbChecked Then GiveExportCommand
-            Else
-               DisplayStatus ErrorListText(Connection().Errors)
-            End If
-
-            Connection , , Reset:=True
-         End If
-      End If
-   End If
-EndRoutine:
-   ExecuteQueryButton.Enabled = ((Not (Query().Path = vbNullString)) And ConnectionOpened(Connection()))
-   Screen.MousePointer = vbDefault
-   
-   If (Settings().QueryAutoClose) Or (Not ProcessSessionList() = vbNullString) Then Unload Me
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-'This procedure sets this window to interactive batch mode.
-Private Sub PutWindowInBatchMode()
-On Error GoTo ErrorTrap
-   AutomaticallyExportResultBox.Enabled = False
-   CreateEMailWithExportAttachedBox.Enabled = False
-   ExportFrame.Enabled = False
-   ExportResultButton.Enabled = False
-   ExportResultToLabel.Enabled = False
-   OpenResultAfterExportBox.Enabled = False
-   OpenQueryButton.Enabled = False
-   QueryLabel.Enabled = False
-   QueryPathBox.Enabled = False
-   QueryResultBox.Enabled = False
-   ResultFrame.Enabled = False
-   SelectExportPathButton.Enabled = False
-   SelectQueryButton.Enabled = False
-   
-   ExportPathBox.Text = vbNullString
-   ExecuteQueryButton.Caption = "&Execute Batch"
-   ExecuteQueryButton.ToolTipText = "Click here to execute the batch with the specified parameters."
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-'This procedure resets this window.
-Private Sub ResetWindow()
-On Error GoTo ErrorTrap
+'Deze procedure reset dit venster.
+Private Sub ResetVenster()
+On Error GoTo Fout
 Dim Index As Long
-   
-   AutomaticallyExportResultBox.Enabled = True
-   CreateEMailWithExportAttachedBox.Enabled = True
-   ExecuteQueryButton.Enabled = False
+
+   AutomatischResultaatExporterenVeld.Enabled = True
+   ExporteerResultaatNaarLabel.Enabled = True
    ExportFrame.Enabled = True
-   ExportResultButton.Enabled = True
-   ExportResultToLabel.Enabled = True
-   OpenQueryButton.Enabled = True
-   OpenResultAfterExportBox.Enabled = True
-   ParameterFrameScrollBar.Enabled = False
+   ExportPadSelecterenKnop.Enabled = True
+   MaakEMailMetExportBijgevoegdVeld.Enabled = True
+   OpenResultaatNaExportVeld.Enabled = True
+   ParameterFrameSchuifBalk.Enabled = False
    ParametersFrame.Enabled = False
    QueryLabel.Enabled = True
-   QueryPathBox.Enabled = True
-   QueryResultBox.Enabled = True
-   ResultFrame.Enabled = True
-   SelectExportPathButton.Enabled = True
-   SelectQueryButton.Enabled = True
-   
-   QueryResultBox.Text = vbNullString
-   
-   AutomaticallyExportResultBox.ToolTipText = "If this box is checked, the query result will be exported to the specified path."
-   CreateEMailWithExportAttachedBox.ToolTipText = "If this box is checked, an e-mail with the exported query result will be created."
-   ExecuteQueryButton.ToolTipText = "Click here to execute the query with the specified parameters."
-   ExportPathBox.ToolTipText = "Here the path to which the query result will exported to can be specified."
-   ExportResultButton.ToolTipText = "Click here to export the query result to the specified path."
-   OpenQueryButton.ToolTipText = "Click here to the open the specified query file."
-   OpenResultAfterExportBox.ToolTipText = "If this box is checked, the exported query result will be opened."
-   QueryPathBox.ToolTipText = "Here a query file's path can be specified."
-   QueryResultBox.ToolTipText = "The query result is displayed here. Press the Control + Page Up or Page Down keys to browse between multiple query results."
-   SelectExportPathButton.ToolTipText = "Click here to open a window to browse to a folder for the export file."
-   SelectQueryButton.ToolTipText = "Click here to open a window to browse to a query file."
-   StatusBox.ToolTipText = "The status information is displayed here. Right click inside the text for options."
-   
-   For Index = ParameterBoxes.LBound To ParameterBoxes.UBound
+   QueryOpenenKnop.Enabled = True
+   QueryPadVeld.Enabled = True
+   QueryResultaatVeld.Enabled = True
+   QuerySelecterenKnop.Enabled = True
+   QueryUitvoerenKnop.Enabled = False
+   ResultaatExporterenKnop.Enabled = True
+   ResultaatFrame.Enabled = True
+
+   QueryResultaatVeld.Text = vbNullString
+
+   AutomatischResultaatExporterenVeld.ToolTipText = "Als dit veld is aangevinkt, dan wordt het queryresultaat naar het opgegeven pad geëxporteerd."
+   ExportPadSelecterenKnop.ToolTipText = "Klik hier om een venster te openen om naar een map voor het export bestand te bladeren."
+   ExportPadVeld.ToolTipText = "Hier kan het pad waar het queryresultaat naar wordt geëxporteerd opgegeven worden."
+   MaakEMailMetExportBijgevoegdVeld.ToolTipText = "Als dit veld is aangevinkt, dan wordt een e-mail met het geëxporteerde queryresultaat gemaakt."
+   OpenResultaatNaExportVeld.ToolTipText = "Als dit veld is aangevinkt, dan wordt het geëxporteerde resultaat geopend."
+   QueryOpenenKnop.ToolTipText = "Klik hier om het opgegeven query bestand te openen."
+   QueryPadVeld.ToolTipText = "Hier kan het pad van een querybestand worden opgegeven."
+   QueryResultaatVeld.ToolTipText = "Hier wordt het queryresultaat weergegeven. Druk op de toetsen Control + Page Up of Page Down om te bladeren tussen meerdere queryresultaten."
+   QuerySelecterenKnop.ToolTipText = "Klik hier om een venster te openen om naar een query bestand te bladeren."
+   QueryUitvoerenKnop.ToolTipText = "Klik hier om de query met de opgegeven parameters uit te voeren."
+   ResultaatExporterenKnop.ToolTipText = "Klik hier om het queryresultaat te exporteren naar het opgegeven pad."
+   StatusVeld.ToolTipText = "Hier wordt de status informatie weergegeven. Klik met de rechtermuisknop in de tekst voor opties."
+
+   For Index = ParameterVelden.LBound To ParameterVelden.UBound
       ParameterLabel(Index).Caption = "Parameter:"
       ParameterLabel(Index).Enabled = False
       ParameterLabel(Index).ToolTipText = ParameterLabel(Index).Caption
-      ParameterBoxes(Index).Enabled = False
-      ParameterBoxes(Index).Text = vbNullString
-      ParameterBoxes(Index).ToolTipText = "Enter a value for the parameter here."
-      If Index > ParameterBoxes.LBound Then
+      ParameterVelden(Index).Enabled = False
+      ParameterVelden(Index).Text = vbNullString
+      ParameterVelden(Index).ToolTipText = "Voer hier een waarde in voor de parameter."
+      If Index > ParameterVelden.LBound Then
          Unload ParameterLabel(Index)
-         Unload ParameterBoxes(Index)
+         Unload ParameterVelden(Index)
       End If
    Next Index
-   
-   Me.Caption = App.Title & " " & ProgramVersion()
-EndRoutine:
-   If Settings().BatchInteractive Then PutWindowInBatchMode
+
+   Me.Caption = App.Title & " " & ProgrammaVersie()
+EindeProcedure:
+   If Instellingen().BatchInteractief Then ZetVensterInBatchModus
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure closes this window.
-Private Sub CloseMenu_Click()
-On Error GoTo ErrorTrap
-   Unload Me
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-'This procedure gives the command to execute the selected query with the specified parameters.
-Private Sub ExecuteQueryButton_Click()
-On Error GoTo ErrorTrap
-   If Settings().BatchInteractive Then
-      If ParametersValid(ParameterBoxes) Then
-         AbortInteractiveBatch AbortBatch:=False
-         Me.Enabled = False
-         ExecuteQueryButton.Enabled = False
+'Deze procedure geeft de opdracht het opgegeven/eerder geladen querybestand te tonen.
+Private Sub ToonQuery(Optional Pad As String = vbNullString)
+On Error GoTo Fout
+   If Not BatchModusActief() Then
+      If Pad = vbNullString Then
+         QueryParameters Query().Code
+      Else
+         QueryParameters Query(VerwijderAanhalingsTekens(Pad)).Code
       End If
-   Else
-      GiveQueryCommand
    End If
-EndRoutine:
+
+   QueryResultaten , ResultatenVerwijderen:=True
+   ResetVenster
+
+   PasVensterAan
+
+   If Instellingen().QueryAutoUitvoeren Then GeefQueryOpdracht
+
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
+'Deze procedure verschuift de schuifbalk zodat het opgegeven parameterveld zichtbaar wordt.
+Private Sub VerschuifBalk(VeldIndex As Long)
+On Error GoTo Fout
+Dim Index As Long
+Dim Rij As Long
 
-'This procedure gives the command to the export the query result.
-Private Sub ExportResultButton_Click()
-On Error GoTo ErrorTrap
-   GiveExportCommand
-EndRoutine:
+   Rij = 0
+   For Index = ParameterVelden.LBound To VeldIndex
+      If ParameterVelden(Index).Visible Then Rij = Rij + 1
+   Next Index
+
+EindeProcedure:
+   ParameterFrameSchuifBalk.Value = Rij - 1
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
+'Deze procedure zet dit venster in interactieve batchmodus.
+Private Sub ZetVensterInBatchModus()
+On Error GoTo Fout
+   AutomatischResultaatExporterenVeld.Enabled = False
+   ExporteerResultaatNaarLabel.Enabled = False
+   ExportFrame.Enabled = False
+   ExportPadSelecterenKnop.Enabled = False
+   MaakEMailMetExportBijgevoegdVeld.Enabled = False
+   OpenResultaatNaExportVeld.Enabled = False
+   QueryLabel.Enabled = False
+   QueryOpenenKnop.Enabled = False
+   QueryPadVeld.Enabled = False
+   QueryResultaatVeld.Enabled = False
+   QuerySelecterenKnop.Enabled = False
+   ResultaatExporterenKnop.Enabled = False
+   ResultaatFrame.Enabled = False
 
+   ExportPadVeld.Text = vbNullString
+   QueryUitvoerenKnop.Caption = "Batch &Uitvoeren"
+   QueryUitvoerenKnop.ToolTipText = "Klik hier om de batch met de opgegeven parameters uit te voeren."
+EindeProcedure:
+   Exit Sub
 
-'This procedure gives the command to diplay any query that has been loaded while starting this program.
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure geeft de opdracht om de gebruiker te verzoeken een export pad op te geven.
+Private Sub ExportPadSelecterenKnop_Click()
+On Error GoTo Fout
+   ExportPadVeld.Text = VraagExportPad(ExportPadVeld.Text)
+   ExportPadVeld.SelStart = 0
+   If Not ExportPadVeld.Text = vbNullString Then ExportPadVeld.SelStart = Len(ExportPadVeld.Text) - 1
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure geeft de opdracht om een eventuele bij het starten van dit programma geladen query te tonen.
 Private Sub Form_Activate()
-On Error GoTo ErrorTrap
-   If BatchModeActive() Then
-      AdjustWindow
+On Error GoTo Fout
+   If BatchModusActief() Then
+      PasVensterAan
    Else
-      If Not Trim$(Command$()) = vbNullString Then DisplayStatus "Command line: " & Command$() & vbCrLf
-      If Not ProcessSessionList() = vbNullString Then DisplayStatus "Session list: " & ProcessSessionList() & vbCrLf
-      DisplayConnectionStatus
-      If Not Query().Path = vbNullString Then DisplayQuery Query().Path
+      If Not Trim$(Command$()) = vbNullString Then ToonStatus "Opdrachtregel: " & Command$() & vbCrLf
+      If Not VerwerkSessieLijst() = vbNullString Then ToonStatus "Sessie lijst: " & VerwerkSessieLijst() & vbCrLf
+      ToonVerbindingsstatus
+      If Not Query().Pad = vbNullString Then ToonQuery Query().Pad
    End If
-EndRoutine:
+
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure initializes this window when it is opened.
+'Deze procedure stelt dit venster in wanneer het wordt geopend.
 Private Sub Form_Load()
-On Error GoTo ErrorTrap
-   If Not BatchModeActive() And Not CommandLineArguments().QueryPath = vbNullString Then Query CommandLineArguments().QueryPath
+On Error GoTo Fout
+   If Not BatchModusActief() And Not OpdrachtRegelParameters().QueryPad = vbNullString Then Query OpdrachtRegelParameters().QueryPad
 
-   ResetWindow
-   DisplayStatus , NewBox:=StatusBox
+   ResetVenster
+   ToonStatus , NieuwVeld:=StatusVeld
 
-   With Settings()
-      ExportPathBox.Text = .ExportDefaultPath
-      
-      AutomaticallyExportResultBox.Value = vbUnchecked
-      CreateEMailWithExportAttachedBox.Value = vbUnchecked
-      OpenResultAfterExportBox.Value = vbUnchecked
-      
-      If .ExportAutoOpen Then OpenResultAfterExportBox.Value = vbChecked
-      If Not .ExportDefaultPath = vbNullString Then AutomaticallyExportResultBox.Value = vbChecked
-      If Not (.ExportRecipient = vbNullString And .ExportCCRecipient = vbNullString) Then CreateEMailWithExportAttachedBox.Value = vbChecked
+   With Instellingen()
+      ExportPadVeld.Text = .ExportStandaardPad
+
+      AutomatischResultaatExporterenVeld.Value = vbUnchecked
+      MaakEMailMetExportBijgevoegdVeld.Value = vbUnchecked
+      OpenResultaatNaExportVeld.Value = vbUnchecked
+
+      If .ExportAutoOpenen Then OpenResultaatNaExportVeld.Value = vbChecked
+      If Not .ExportStandaardPad = vbNullString Then AutomatischResultaatExporterenVeld.Value = vbChecked
+      If Not (.ExportOntvanger = vbNullString And .ExportCCOntvanger = vbNullString) Then MaakEMailMetExportBijgevoegdVeld.Value = vbChecked
    End With
-EndRoutine:
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure closes this window after confirmation from the user.
+'Deze procedure sluit dit programma na bevestiging van de gebruiker.
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-On Error GoTo ErrorTrap
-Dim Choice As Long
-   
-   With Settings()
-      If Not .QueryAutoClose Then
+On Error GoTo Fout
+Dim Keuze As Long
+
+   With Instellingen()
+      If Not .QueryAutoSluiten Then
          If UnloadMode = vbFormControlMenu Then
-            If (AbortInteractiveBatch() And InteractiveBatchModeActive()) Or Not BatchModeActive() Then
-                Choice = MsgBox("Close this program?", vbQuestion Or vbYesNo Or vbDefaultButton2)
-               Select Case Choice
+            If (InteractieveBatchAfbreken() And InteractieveBatchModusActief()) Or Not BatchModusActief() Then
+               Keuze = MsgBox("Dit programma sluiten?", vbQuestion Or vbYesNo Or vbDefaultButton2)
+               Select Case Keuze
                   Case vbNo
                      Cancel = CInt(True)
                   Case vbYes
-                     If Not ProcessSessionList() = vbNullString Then AbortSessions NewAbortSessions:=True
+                     If Not VerwerkSessieLijst() = vbNullString Then SessiesAfbreken NieuweSessiesAfbreken:=True
                      Cancel = CInt(False)
                End Select
             End If
          End If
       End If
    End With
-EndRoutine:
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure gives the command to display information about this program.
-Private Sub InformationMenu_Click()
-On Error GoTo ErrorTrap
-   DisplayProgramInformation
-EndRoutine:
+'Deze procedure geeft de opdracht om programmainformatie te tonen.
+Private Sub InformatieMenu_Click()
+On Error GoTo Fout
+   ToonProgrammaInformatie
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure gives the command to open the query at the specified path.
-Private Sub OpenQueryButton_Click()
-On Error GoTo ErrorTrap
-   If Not QueryPathBox.Text = vbNullString Then DisplayQuery QueryPathBox.Text
-EndRoutine:
+'Deze procedure verplaatst de parametervelden wanneer de knop op de schuifbalk verschoven wordt.
+Private Sub ParameterFrameSchuifBalk_Change()
+On Error GoTo Fout
+Dim Index As Long
+Dim Rij As Long
+
+   Rij = 0
+   For Index = ParameterVelden.LBound To ParameterVelden.UBound
+      ParameterLabel(Index).Top = (Rij - ParameterFrameSchuifBalk.Value) * (ParameterLabel(Index).Height * 1.75)
+      ParameterVelden(Index).Top = ParameterLabel(Index).Top
+      If Not QueryParameters(, Index).ParameterNaam = vbNullString Then Rij = Rij + 1
+   Next Index
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-
-'This procedure selects the contents of the activated parameter box.
-Private Sub ParameterBoxes_GotFocus(Index As Integer)
-On Error GoTo ErrorTrap
-   With ParameterBoxes(Index)
-      If .Top - .Height < 0 Or .Top > ParameterBoxContainer.ScaleHeight Then AdjustScrollBar CLng(Index)
+'Deze procedure selecteert de inhoud van het geactiveerde parameterveld.
+Private Sub ParameterVelden_GotFocus(Index As Integer)
+On Error GoTo Fout
+   With ParameterVelden(Index)
+      If .Top - .Height < 0 Or .Top > ParameterVeldHouder.ScaleHeight Then VerschuifBalk CLng(Index)
       .SelStart = 0
       .SelLength = Len(.Text)
    End With
-EndRoutine:
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-
-'This procedure filters the user's keystrokes in a parameter box.
-Private Sub ParameterBoxes_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
-On Error GoTo ErrorTrap
+'Deze procedure filtert de toetsaanslagen van de gebruiker in een parameterveld.
+Private Sub ParameterVelden_KeyDown(Index As Integer, KeyCode As Integer, Shift As Integer)
+On Error GoTo Fout
 
    If Not Shift = Asc(vbNullChar) Then
       If Not ((KeyCode = vbKeyF4) And (Shift And vbAltMask) = vbAltMask) Then
@@ -856,32 +830,31 @@ On Error GoTo ErrorTrap
          Shift = Asc(vbNullChar)
       End If
    End If
-   
-EndRoutine:
+
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure handles the user's input in a parameter box.
-Private Sub ParameterBoxes_KeyPress(Index As Integer, KeyAscii As Integer)
-On Error GoTo ErrorTrap
-Dim Character As String
-Dim CursorPosition As Long
-Dim FixedInputCharacter As String
-Dim MaskCharacter As String
-Dim Text As String
+'Deze procedure verwerkt de invoer van de gebruiker in een parameterveld.
+Private Sub ParameterVelden_KeyPress(Index As Integer, KeyAscii As Integer)
+On Error GoTo Fout
+Dim CursorPositie As Long
+Dim MaskerTeken As String
+Dim Teken As String
+Dim Tekst As String
 
    If Not KeyAscii = vbMenuAccelCtrlC Then
-      With ParameterBoxes(Index)
-         Character = vbNullString
+      With ParameterVelden(Index)
+         Teken = vbNullString
          Select Case KeyAscii
             Case vbKeyBack
                If .SelStart > 0 Then
-                  CursorPosition = .SelStart
-                  Character = Mid$(QueryParameters(, CLng(Index)).FixedMask, CursorPosition, 1)
+                  CursorPositie = .SelStart
+                  Teken = Mid$(QueryParameters(, CLng(Index)).Masker, CursorPositie, 1)
                End If
             Case vbMenuAccelCtrlV
                If .SelLength = 0 Then
@@ -892,158 +865,174 @@ Dim Text As String
             Case vbMenuAccelCtrlX
                If .SelLength = 0 Then
                   Clipboard.SetText .Text, vbCFText
-                  .Text = QueryParameters(, CLng(Index)).FixedMask
+                  .Text = QueryParameters(, CLng(Index)).Masker
                Else
                   Clipboard.SetText .SelText, vbCFText
-                  .SelText = QueryParameters(, CLng(Index)).FixedMask
+                  .SelText = QueryParameters(, CLng(Index)).Masker
                End If
             Case Else
-               Character = UCase$(Chr$(KeyAscii))
-               CursorPosition = .SelStart + 1
-               
-               With QueryParameters(, CLng(Index))
-                  FixedInputCharacter = Mid$(.FixedInput, CursorPosition, 1)
-                  MaskCharacter = Mid$(.Mask, CursorPosition, 1)
-               End With
+               Teken = UCase$(Chr$(KeyAscii))
+               CursorPositie = .SelStart + 1
    
-               If Not ParameterMaskCharacterValid(Character, MaskCharacter, FixedInputCharacter) = vbNullString Then Character = vbNullString
+               MaskerTeken = Mid$(QueryParameters(, CLng(Index)).Masker, CursorPositie, 1)
+               If Not ParameterMaskerTekenGeldig(Teken, MaskerTeken) = vbNullString Then Teken = vbNullString
          End Select
-      
-         If CursorPosition > 0 And CursorPosition <= Len(QueryParameters(, CLng(Index)).Mask) Then
-            Text = .Text & Mid$(QueryParameters(, CLng(Index)).FixedMask, Len(.Text) + 1)
-            Mid$(Text, CursorPosition, 1) = Character
-            .Text = Text
-            If KeyAscii = vbKeyBack Then .SelStart = CursorPosition - 1 Else .SelStart = CursorPosition
+   
+         If CursorPositie > 0 And CursorPositie <= Len(QueryParameters(, CLng(Index)).Masker) Then
+            Tekst = .Text & Mid$(QueryParameters(, CLng(Index)).Masker, Len(.Text) + 1)
+            Mid$(Tekst, CursorPositie, 1) = Teken
+            .Text = Tekst
+            If KeyAscii = vbKeyBack Then .SelStart = CursorPositie - 1 Else .SelStart = CursorPositie
          End If
-       
+   
          KeyAscii = Asc(vbNullChar)
       End With
    End If
-EndRoutine:
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure clears the parameter box when the user presses the delete button.
-Private Sub ParameterBoxes_KeyUp(Index As Integer, KeyCode As Integer, Shift As Integer)
-On Error GoTo ErrorTrap
+'Deze procedure maakt het parameterveld leeg wanneer de gebruiker de delete knop in drukt.
+Private Sub ParameterVelden_KeyUp(Index As Integer, KeyCode As Integer, Shift As Integer)
+On Error GoTo Fout
    If KeyCode = vbKeyDelete Then
       With QueryParameters(, CLng(Index))
-         ParameterBoxes(Index).Text = .DefaultValue & Mid$(.FixedMask, Len(.DefaultValue) + 1)
+         ParameterVelden(Index).Text = .StandaardWaarde & Mid$(.Masker, Len(.StandaardWaarde) + 1)
       End With
    End If
-EndRoutine:
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure selects the activated parameter box' contents.
-Private Sub ParameterBoxes_MouseDown(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
-On Error GoTo ErrorTrap
-   ParameterBoxes(Index).SelStart = 0
-   ParameterBoxes(Index).SelLength = Len(ParameterBoxes(Index).Text)
-EndRoutine:
+'Deze procedure selecteert de inhoud van het geactiveerde parameterveld.
+Private Sub ParameterVelden_MouseDown(Index As Integer, Button As Integer, Shift As Integer, X As Single, Y As Single)
+On Error GoTo Fout
+   ParameterVelden(Index).SelStart = 0
+   ParameterVelden(Index).SelLength = Len(ParameterVelden(Index).Text)
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure moves the parameter boxes when the button on the scrollbar is moved.
-Private Sub ParameterFrameScrollBar_Change()
-On Error GoTo ErrorTrap
-Dim Index As Long
-Dim Row As Long
-   
-   Row = 0
-   For Index = ParameterBoxes.LBound To ParameterBoxes.UBound
-      ParameterLabel(Index).Top = (Row - ParameterFrameScrollBar.Value) * (ParameterLabel(Index).Height * 1.75)
-      ParameterBoxes(Index).Top = ParameterLabel(Index).Top
-      If Not QueryParameters(, Index).ParameterName = vbNullString Then Row = Row + 1
-   Next Index
-EndRoutine:
+'Deze procedure opent de eerste van een of meer bestanden die in het querypadveld gesleept worden.
+Private Sub QueryPadVeld_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
+On Error GoTo Fout
+   If Data.Files.Count > 0 Then ToonQuery Data.Files.Item(1)
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-
-
-'This procedure opens the first of one or more files that have been dragged into the query path box.
-Private Sub QueryPathBox_OLEDragDrop(Data As DataObject, Effect As Long, Button As Integer, Shift As Integer, X As Single, Y As Single)
-On Error GoTo ErrorTrap
-   If Data.Files.Count > 0 Then DisplayQuery Data.Files.Item(1)
-EndRoutine:
+'Deze procedure geeft de opdracht om de query op het opgegeven pad te openen.
+Private Sub QueryOpenenKnop_Click()
+On Error GoTo Fout
+   If Not QueryPadVeld.Text = vbNullString Then ToonQuery QueryPadVeld.Text
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure processes the user's keystrokes in the query result box.
-Private Sub QueryResultBox_KeyUp(KeyCode As Integer, Shift As Integer)
-On Error GoTo ErrorTrap
-Dim FirstResult As Long
-Dim LastResult As Long
-Static ResultIndex As Long
+'Deze procedure verwerkt de toetsaanslagen van de gebruiker in het queryresultaat veld.
+Private Sub QueryResultaatVeld_KeyUp(KeyCode As Integer, Shift As Integer)
+On Error GoTo Fout
+Dim EersteResultaat As Long
+Dim LaatsteResultaat As Long
+Static ResultaatIndex As Long
 
    If (Shift And vbCtrlMask) = vbCtrlMask Then
-      QueryResults , , , FirstResult, LastResult
+      QueryResultaten , , , EersteResultaat, LaatsteResultaat
 
       Select Case KeyCode
          Case vbKeyPageUp
-            If ResultIndex > FirstResult Then ResultIndex = ResultIndex - 1
+            If ResultaatIndex > EersteResultaat Then ResultaatIndex = ResultaatIndex - 1
          Case vbKeyPageDown
-            If ResultIndex < LastResult Then ResultIndex = ResultIndex + 1
+            If ResultaatIndex < LaatsteResultaat Then ResultaatIndex = ResultaatIndex + 1
       End Select
 
-      DisplayQueryResult QueryResultBox, ResultIndex
+      ToonQueryResultaat QueryResultaatVeld, ResultaatIndex
    End If
-EndRoutine:
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure gives the command to request the user to select a query.
-Private Sub SelectQueryButton_Click()
-On Error GoTo ErrorTrap
-Dim QueryPath As String
 
-   QueryPath = RequestQueryPath()
-   If Not QueryPath = vbNullString Then DisplayQuery QueryPath
-EndRoutine:
+'Deze procedure geeft de opdracht om de gebruiker te verzoeken een query te selecteren.
+Private Sub QuerySelecterenKnop_Click()
+On Error GoTo Fout
+Dim QueryPad As String
+
+   QueryPad = VraagQueryPad()
+   If Not QueryPad = vbNullString Then ToonQuery QueryPad
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure gives the command to request the user to specify an export path.
-Private Sub SelectExportPathButton_Click()
-On Error GoTo ErrorTrap
-   ExportPathBox.Text = RequestExportPath(ExportPathBox.Text)
-   ExportPathBox.SelStart = 0
-   If Not ExportPathBox.Text = vbNullString Then ExportPathBox.SelStart = Len(ExportPathBox.Text) - 1
-EndRoutine:
+'Deze procedure geeft de opdracht om de geselecteerde query met de opgegeven parameters uit te voeren.
+Private Sub QueryUitvoerenKnop_Click()
+On Error GoTo Fout
+   If Instellingen().BatchInteractief Then
+      If ParametersGeldig(ParameterVelden) Then
+         InteractieveBatchAfbreken BatchAfbreken:=False
+         Me.Enabled = False
+         QueryUitvoerenKnop.Enabled = False
+      End If
+   Else
+      GeefQueryOpdracht
+   End If
+EindeProcedure:
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
+'Deze procedure geeft de opdracht om het queryresultaat te exporteren.
+Private Sub ResultaatExporterenKnop_Click()
+On Error GoTo Fout
+   GeefExportOpdracht
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure sluit dit venster.
+Private Sub SluitenMenu_Click()
+On Error GoTo Fout
+   Unload Me
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
 

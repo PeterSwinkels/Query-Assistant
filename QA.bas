@@ -1,8 +1,8 @@
 Attribute VB_Name = "QAModule"
-'This module contains this program's main procedures.
+'Deze module bevat de hoofdprocedures van dit programma.
 Option Explicit
 
-'The Microsoft Windows API constants, functions, and structures used by this program.
+'De door dit programma gebruikte Microsoft Windows API constanten, functies en structuren.
 Private Type OPENFILENAME
    lStructSize As Long
    hwndOwner As Long
@@ -27,16 +27,16 @@ Private Type OPENFILENAME
 End Type
 
 Public Const SW_SHOWNORMAL As Long = 1
-Private Const CDLOFNEXPLORER As Long = &H80000
-Private Const CDLOFNFILEMUSTEXIST As Long = &H1000&
-Private Const CDLOFNHIDEREADONLY As Long = &H4&
-Private Const CDLOFNLONGNAMES As Long = &H200000
-Private Const CDLOFNNOCHANGEDIR As Long = &H8&
-Private Const CDLOFNPATHMUSTEXIST As Long = &H800&
 Private Const ERROR_SUCCESS As Long = 0
 Private Const FORMAT_MESSAGE_ARGUMENT_ARRAY As Long = &H2000&
 Private Const FORMAT_MESSAGE_FROM_SYSTEM As Long = &H1000&
 Private Const MAX_STRING As Long = 65535
+Private Const OFN_EXPLORER As Long = &H80000
+Private Const OFN_FILEMUSTEXIST  As Long = &H1000&
+Private Const OFN_HIDEREADONLY As Long = &H4&
+Private Const OFN_LONGNAMES As Long = &H200000
+Private Const OFN_NOCHANGEDIR As Long = &H8&
+Private Const OFN_PATHMUSTEXIST  As Long = &H800&
 
 Public Declare Function ShellExecuteA Lib "Shell32.dll" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
 Private Declare Function FormatMessageA Lib "Kernel32.dll" (ByVal dwFlags As Long, lpSource As Long, ByVal dwBerichtId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, Arguments As Long) As Long
@@ -46,914 +46,390 @@ Private Declare Function SafeArrayGetDim Lib "Oleaut32.dll" (ByRef saArray() As 
 Private Declare Function SetCurrentDirectoryA Lib "Kernel32.dll" (ByVal lpPathName As String) As Long
 Private Declare Function WaitMessage Lib "User32.dll" () As Long
 
-'The constants, enumerations, and structures used by this program.
+'De door dit programma gebruikte constanten, definities, en opsommingen.
 
-'Contains a list of the parameter definition elements.
-Private Enum ParameterDefinitionList
-   NameElement
-   MaskElement
-   FixedElement
-   DefaultValueElement
-   PropertiesElement
-   CommentsElement
+'Bevat een opsomming van de parameter definitie elementen.
+Private Enum ParameterDefinitieOpsomming
+   NaamElement
+   MaskerElement
+   StandaardWaardeElement
+   CommentaarElement
 End Enum
 
-'This structure defines this program's settings.
-Public Type SettingsStructure
-   BatchInteractive As Boolean        'Indicates whether the user must first specify any parameters before a batch can be executed.
-   BatchQueryPath As String           'Contains the path and/or filename without indexes of the query's in a batch to be executed.
-   BatchRange As String               'Contains the indexes of the first and last query in a batch to be executed.
-   ConnectionInformation As String    'Contains the information required for a connection with a database.
-   EMailText As String                'Contains the text of the e-mail with the exported results.
-   ExportAutoOpen As Boolean          'Indicates whether an export is opened automatically after having been exported.
-   ExportAutoOverwrite As Boolean     'Indicates whether a file is automatically overwritten while exporting the query results.
-   ExportAutoSend As Boolean          'Indicates whether the e-mail with the exported results is sent automatically.
-   ExportCCRecipient As String        'Contains the e-mail address to which the exported result's copy is sent.
-   ExportDefaultPath As String        'Contains the default path for the export of query results.
-   ExportPadColumn As Boolean         'Indicates whether the data in a column should be padded with spaces.
-   ExportRecipient As String          'Contains the e-mail address to which the exported query results are sent.
-   ExportSender As String             'Contains the e-mail containing the exported results' sender.
-   ExportSubject As String            'Contains the e-mail with the exported results' subject.
-   FileName As String                 'Contains the path and/or filename of the program's settings file.
-   QueryAutoClose As Boolean          'Indicates whether this program after executing a query and export is closed automatically.
-   QueryAutoExecute As Boolean        'Indicates whether a query is automatically executed after having been loaded.
-   QueryRecordSets As Boolean         'Indicates whether the database can return more than one recordset as the result of a query.
-   QueryTimeout As Long               'Contains the number of seconds the program will wait for the query result after the command to execute the query has been given.
-   PreviewColumnWidth As Long         'Contains the maximum column width used to display the query result in the preview window.
-   PreviewLines As Long               'Contains the maximum number of lines that is displayed of the query result in the preview window.
+'Bevat de definities voor de instellingen van dit programma.
+Public Type InstellingenDefinitie
+   BatchBereik As String              'Bevat de volgnummers van de eerste en de laatste query in een uit te voeren batch.
+   BatchInteractief As Boolean        'Geeft aan of de gebruiker eerst parameters moet invoeren voordat een batch uitgevoerd kan worden.
+   BatchQueryPad As String            'Bevat het pad en/of de bestandsnaam zonder volgnummers van de query's in een uit te voeren batch.
+   Bestand As String                  'Bevat het pad en/of de bestandsnaam van het programmainstellingenbestand.
+   EMailTekst As String               'Bevat de tekst van de e-mail met de geëxporteerde resultaten.
+   ExportAfzender As String           'Bevat de naam van de afzender van de e-mail met de geëxporteerde resultaten.
+   ExportAutoOpenen As Boolean        'Geeft aan of een export automatisch na het exporteren geopend wordt.
+   ExportAutoOverschrijven As Boolean 'Geeft aan of een bestand automatisch overschreven wordt bij het exporteren van de queryresultaataten.
+   ExportAutoVerzenden As Boolean     'Geeft aan of de e-mail met de geëxporteerde resultaten automatisch verzonden wordt.
+   ExportCCOntvanger As String        'Bevat het e-mail adres van de ontvanger van het kopie van de e-mail met de geëxporteerde resultaten.
+   ExportKolomAanvullen As Boolean    'Geeft aan of de data in een kolom moet worden aangevuld met spaties.
+   ExportOnderwerp As String          'Bevat het onderwerp van de e-mail met de geëxporteerde resultaten.
+   ExportOntvanger As String          'Bevat het e-mail adres van de ontvanger van de e-mail met de geëxporteerde resultaten.
+   ExportStandaardPad As String       'Bevat het standaardpad voor het exporteren van queryresultaataten.
+   QueryAutoSluiten As Boolean        'Geeft aan of dit programma na het uitvoeren van een query en een eventuele export automatisch afgesloten wordt.
+   QueryAutoUitvoeren As Boolean      'Geeft aan of een query automatisch uitgevoerd wordt na het laden.
+   QueryRecordSets As Boolean         'Geeft aan of er meer dan een recordset kan worden teruggestuurd door de database als het resultaat van een query.
+   QueryTimeout As Long               'Bevat het aantal seconden dat het programma wacht op het queryresultaat nadat opdracht is gegeven de query uit te voeren.
+   VoorbeeldKolomBreedte As Long      'Bevat de maximale kolombreedte die gebruikt wordt om het queryresultaat te tonen in het voorbeeld venster.
+   VoorbeeldRegels As Long            'Bevat het maximum aantal regels dat van het queryresultaat wordt getoond in het voorbeeld venster.
+   VerbindingsInformatie As String    'Bevat de voor de verbinding met een database noodzakelijke gegevens.
 End Type
 
-'This structure defines the parameter information for the selected query.
-Public Type QueryParameterStructure
-   Comments As String            'The comments for the parameter.
-   DefaultValue As String        'The default value for the parameter.
-   FixedInput As String          'The parameter definition's fixed input.
-   FixedMask As String           'The input mask merged with the fixed input.
-   InputBoxIsVisible As Boolean  'Indicates whether the parameter's input box is visible.
-   Length As Long                'The parameter definition's length.
-   LengthIsVariable As Boolean   'Indicates whether variable length input is allowed.
-   Mask As String                'The parameter's input mask.
-   ParameterName As String       'The parameter's name.
-   Position As Long              'The parameter's position relative to the previous parameter's position.
-   Properties As String          'The parameter defintion's properties.
-   Value As String               'The user's input.
+'Bevat de definities voor de opdrachtregelparameters die eventueel zijn opgegeven bij het starten van dit programma.
+Public Type OpdrachtRegelParametersDefinitie
+   InstellingenPad As String   'Bevat het opgegeven instellingenpad.
+   QueryPad As String          'Bevat het opgegeven querypad.
+   SessiesPad As String        'Bevat het opgegeven sessielijstpad.
+   Verwerkt As Boolean         'Geeft aan of de opdrachtregelparameters zonder fouten zijn verwerkt.
 End Type
 
-'This structure defines any command line arguments specified when starting this program.
-Public Type CommandLineArgumentsStructure
-   SettingsPath As String     'Contains the specified settings path.
-   QueryPath As String        'Contains the specified query path.
-   SessionPath As String      'Containsthe  specified session list path.
-   Processed As Boolean       'Indicates whether the command line arguments were processed without errors.
+'Bevat de definities voor een query.
+Public Type QueryDefinitie
+   Code As String              'De code van een query.
+   Pad As String               'Het pad van een query bestand.
+   Geopend As Boolean          'Geeft aan of het query bestand kon worden geopend.
 End Type
 
-'This structure defines a query.
-Public Type QueryStructure
-   Code As String             'A query's code.
-   Path As String             'A query file's path.
-   Opened As Boolean          'Indicates whether a query could be opened.
+'Bevat de definities voor de parameter gegevens van de geselecteerde query.
+Public Type QueryParameterDefinitie
+   Commentaar As String        'Het commentaar bij de parameter.
+   Invoer As String            'De invoer van de gebruiker.
+   Lengte As Long              'De lengte van de parameterdefinitie.
+   LengteIsVariabel As Boolean 'Geeft aan of de lengte van de invoer variabel is.
+   Masker As String            'Het invoer masker van de parameter.
+   ParameterNaam As String     'De naam van de parameter.
+   Positie As Long             'De positie relatief ten op zichte van de vorige definitie.
+   StandaardWaarde As String   'De standaardwaarde van de parameter.
+   VeldIsZichtbaar As Boolean  'Geeft aan of het invoer veld zichtbaar is.
 End Type
 
-'This structure defines a query's result.
-Public Type QueryResultStructure
-   ColumnWidth() As Long     'Indicates the information's maximum width in bytes for each column.
-   RightAligned() As Boolean 'Indicates whether the information will right aligned when displayed.
-   Table() As String         'Contains the information retrieved from a database by a query.
+'Bevat de definities voor het resultaat van een query.
+Public Type QueryResultaatDefinitie
+   KolomBreedte() As Long       'Geeft per kolom de maximale breedte in bytes van de gegevens aan.
+   RechtsUitlijnen() As Boolean 'Geeft per kolom aan of de gegevens rechtsuitgelijnd worden bij weergave.
+   Tabel() As String            'Bevat de door een query opgevraagde gegevens uit een database.
 End Type
 
-Public Const NO_PARAMETER As Long = -1                      'Stands for "no parameter".
-Public Const PASSWORD_VARIABLE As String = "$$PASSWORD$$"   'This variable indicates the password's position when pressent in the connection information.
-Public Const USER_VARIABLE As String = "$$USER$$"           'This variable indicates the user name's position when pressent in the connection information.
-Private Const ARGUMENT_CHARACTER As String = "?"             'Delimits the command line arguments.
-Private Const ASCII_A As Long = 65                           'The ASCII value for the  "A" character.
-Private Const ASCII_Z As Long = 90                           'The ASCII value for the  "Z" character.
-Private Const COMMENT_CHARACTER As String = "#"              'Indicates that a line in a settings file is a comment.
-Private Const CONNECTION_PARAMETER_CHARACTER As String = ";" 'Delimits the connection information parameters.
-Private Const DEFINITION_CHARACTERS As String = "$$"         'Indicates where a parameter definition in a query begins and ends.
-Private Const ELEMENT_CHARACTER As String = ":"              'Delimits the parameter definition elements.
-Private Const EXCEL_MAXIMUM_COLUMN_NUMBER As Long = 255      'The maximum number of columns supported by Microsoft Excel.
-Private Const MASK_DIGIT As String = "#"                     'Indicates in a mask that a number is expected as input.
-Private Const MASK_FIXED As String = " "                     'Indicates in a mask that the character is fixed input.
-Private Const MASK_UPPERCASE As String = "_"                 'Indicates in a mask that a capital letter is expected as input.
-Private Const NO_LETTER As Long = 64                         'Stands for "no letter". (The ASCII character that precedes the "A" character.)
-Private Const NO_MAXIMUM As Long = -1                        'Stands for "no maximum column width or maximum number of lines in a preview".
-Private Const NO_RESULT As Long = -1                         'Stands for "no query result".
-Private Const NOT_FIXED As String = "*"                      'Stands for "not a fixed input character".
-Private Const PROPERTY_HIDDEN As String = "H"                'Indicates that a parameter's input box is hidden.
-Private Const PROPERTY_VARIABLE_LENGTH As String = "V"       'When present at the start of a mask this character indicates that the input length is variable.
-Private Const UNKNOWN_NUMBER As Long = -1                    'Stands for "unknown number for the specified dimension in the specified array".
-Private Const SECTION_NAME_END As String = "]"               'Indicates the end of a section name in a settings file.
-Private Const SECTION_NAME_START As String = "["             'Indicates the start of a section name in a settings file.
-Private Const SQL_COMMENT_BLOCK_START As String = "/*"       'Stands for the start of a SQL commentblock.
-Private Const SQL_COMMENT_BLOCK_END As String = "*/"         'Stands for the end of a SQL commentblock.
-Private Const SQL_COMMENT_LINE_START As String = "--"        'Stands for the start of a SQL comment line.
-Private Const SQL_COMMENT_LINE_END As String = vbNullString  'Stands for the end of a SQL comment line.
-Private Const STRING_CHARACTERS As String = "'"""            'Stands for the characters that indicate where a string starts and ends.
-Private Const SYMBOL_CHARACTER As String = "*"               'Indicates where a symbol starts and ends.
-Private Const VALUE_CHARACTER As String = "="                'Delimits a settings parameter's value and name.
+Public Const GEBRUIKER_VARIABEL As String = "$$GEBRUIKER$$"       'Indien aanwezig in de verbindingsinformatie geeft dit variabel de positie van de gebruikersnaam aan.
+Public Const GEEN_PARAMETER As Long = -1                          'Staat voor "geen parameter".
+Public Const WACHTWOORD_VARIABEL As String = "$$WACHTWOORD$$"     'Indien aanwezig in de verbindingsinformatie geeft dit variabel de positie van het wachtwoord aan.
+Private Const ASCII_A As Long = 65                                 'De ASCII waarde voor het teken "A".
+Private Const ASCII_Z As Long = 90                                 'De ASCII waarde voor het teken "Z".
+Private Const COMMENTAAR_TEKEN As String = "#"                     'Geeft aan dat een regel in een instellingenbestand commentaar is.
+Private Const DEFINITIE_TEKENS As String = "$$"                    'Geeft het begin en het einde van een parameterdefinitie binnen een query aan.
+Private Const ELEMENT_TEKEN As String = ":"                        'Scheidt de parameter definitie elementen van elkaar.
+Private Const EXCEL_MAXIMUM_AANTAL_KOLOMMEN As Long = 255          'Het maximale aantal door Microsoft Excel ondersteunde kolommen.
+Private Const GEEN_LETTER As Long = 64                             'Staat voor "geen letter". (De ASCII waarde die voor het "A" teken komt.)
+Private Const GEEN_MAXIMUM As Long = -1                            'Staat voor "geen maximale kolom breedte of maximum aantal regels in voorbeeld".
+Private Const GEEN_RESULTAAT As Long = -1                          'Staat voor "geen queryresultaat".
+Private Const MASKER_CIJFER As String = "#"                        'Geeft in een masker aan dat er een cijfer als invoer wordt verwacht.
+Private Const MASKER_HOOFDLETTER As String = "_"                   'Geeft in een masker aan dat er een hoofdletter als invoer wordt verwacht.
+Private Const ONBEKEND_AANTAL As Long = -1                         'Staat voor "onbekend aantal voor de opgegeven dimensie in de opgegeven array".
+Private Const PARAMETER_TEKEN As String = "?"                      'Scheidt de opdrachtregelparameters van elkaar.
+Private Const SECTIE_NAAM_BEGIN As String = "["                    'Geeft het begin van een sectie naam in een instellingenbestand aan.
+Private Const SECTIE_NAAM_EINDE As String = "]"                    'Geeft het einde van een sectie naam in een instellingenbestand aan.
+Private Const SQL_COMMENTAAR_BLOK_BEGIN As String = "/*"           'Staat voor het begin van een SQL commentaarblok.
+Private Const SQL_COMMENTAAR_BLOK_EINDE As String = "*/"           'Staat voor het einde van een SQL commentaarblok.
+Private Const SQL_COMMENTAAR_REGEL_BEGIN As String = "--"          'Staat voor het begin van een SQL commentaarregel.
+Private Const SQL_COMMENTAAR_REGEL_EINDE As String = vbNullString  'Staat voor het einde van een SQL commentaarregel.
+Private Const SYMBOOL_TEKEN As String = "*"                        'Geeft het begin en het einde van een symbool in een tekst aan.
+Private Const TEKENREEKS_TEKENS As String = "'"""                  'Staat voor de tekens die het begin en einde van een tekenreeks aanduiden.
+Private Const VARIABELE_LENGTE_TEKEN As String = "*"               'Indien aanwezig aan het begin van een masker geeft dit teken aan dat de invoer lengte variabel is.
+Private Const VERBINDING_PARAMETER_TEKEN As String = ";"           'Scheidt de verbindingsinformatieparameters van elkaar.
+Private Const WAARDE_TEKEN As String = "="                         'Scheidt de naam en waarde van een instellingenparameter van elkaar.
 
+'Deze procedure stuurt het aantal items min een voor de opgegeven dimensie in de opgegeven array terug.
+Private Function AantalItems(ArrayV As Variant, Optional Dimensie As Long = 1) As Long
+On Error GoTo Fout
+Dim Aantal As Long
 
-'This procedure indicates whether an interactive batch should be aborted.
-Public Function AbortInteractiveBatch(Optional AbortBatch As Variant) As Boolean
-On Error GoTo ErrorTrap
-Static Abort As Boolean
-   
-   If Not IsMissing(AbortBatch) Then Abort = CBool(AbortBatch)
-   
-EndRoutine:
-   AbortInteractiveBatch = Abort
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure indicates whether a series of sessions has been aborted.
-Public Function AbortSessions(Optional NewAbortSessions As Variant) As Boolean
-On Error GoTo ErrorTrap
-Static CurrentAbortSessions As Boolean
-   
-   If Not IsMissing(NewAbortSessions) Then CurrentAbortSessions = CBool(NewAbortSessions)
-
-EndRoutine:
-   AbortSessions = CurrentAbortSessions
+   Aantal = UBound(ArrayV, Dimensie) - LBound(ArrayV, Dimensie)
+EindeProcedure:
+   AantalItems = Aantal
    Exit Function
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   Aantal = ONBEKEND_AANTAL
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure indicates whether the batch mode is active.
-Public Function BatchModeActive() As Boolean
-On Error GoTo ErrorTrap
-EndRoutine:
-   With Settings()
-      BatchModeActive = Not (.BatchRange = vbNullString Or .BatchQueryPath = vbNullString)
+'Deze procedure geeft aan of de  batchmodus actief is.
+Public Function BatchModusActief() As Boolean
+On Error GoTo Fout
+EindeProcedure:
+   With Instellingen()
+      BatchModusActief = Not (.BatchBereik = vbNullString Or .BatchQueryPad = vbNullString)
    End With
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure beheert bestandssysteem gerelateerde functies.
+Public Function BestandsSysteem() As FileSystemObject
+On Error GoTo Fout
+Static HuidigBestandSysteem As New FileSystemObject
+EindeProcedure:
+   Set BestandsSysteem = HuidigBestandSysteem
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procedure checks whether an error has occurred during the most recent API function call.
-Public Function CheckForAPIError(TerugGestuurd As Long, Optional ExtraInformation As String = Empty) As Long
-Dim Description As String
-Dim ErrorCode As Long
-Dim Message As String
-Dim Length As Long
+'Deze procedure bewaart de instellingen van dit programma.
+Private Sub BewaarInstellingen(InstellingenPad As String, TeBewarenInstellingen As InstellingenDefinitie, Bericht As String)
+On Error GoTo Fout
+Dim BestandsHandle As Long
 
-   ErrorCode = Err.LastDllError
+   BestandsHandle = FreeFile()
+   Open InstellingenPad For Output Lock Read Write As BestandsHandle
+      With TeBewarenInstellingen
+         Print #BestandsHandle, SECTIE_NAAM_BEGIN & "BATCH" & SECTIE_NAAM_EINDE
+         Print #BestandsHandle, "Bereik" & WAARDE_TEKEN & .BatchBereik
+         Print #BestandsHandle, "Interactief" & WAARDE_TEKEN & CStr(.BatchInteractief)
+         Print #BestandsHandle, "QueryPad" & WAARDE_TEKEN & .BatchQueryPad
+         Print #BestandsHandle,
+
+         Print #BestandsHandle, SECTIE_NAAM_BEGIN & "EMAILTEKST" & SECTIE_NAAM_EINDE
+         Print #BestandsHandle, .EMailTekst
+         Print #BestandsHandle,
+
+         Print #BestandsHandle, SECTIE_NAAM_BEGIN & "EXPORT" & SECTIE_NAAM_EINDE
+         Print #BestandsHandle, "Afzender" & WAARDE_TEKEN & .ExportAfzender
+         Print #BestandsHandle, "AutoOpenen" & WAARDE_TEKEN & CStr(.ExportAutoOpenen)
+         Print #BestandsHandle, "AutoOverschrijven" & WAARDE_TEKEN & CStr(.ExportAutoOverschrijven)
+         Print #BestandsHandle, "AutoVerzenden" & WAARDE_TEKEN & CStr(.ExportAutoVerzenden)
+         Print #BestandsHandle, "CCOntvanger" & WAARDE_TEKEN & .ExportCCOntvanger
+         Print #BestandsHandle, "KolomAanvullen" & WAARDE_TEKEN & CStr(.ExportKolomAanvullen)
+         Print #BestandsHandle, "Onderwerp" & WAARDE_TEKEN & .ExportOnderwerp
+         Print #BestandsHandle, "Ontvanger" & WAARDE_TEKEN & .ExportOntvanger
+         Print #BestandsHandle, "StandaardPad" & WAARDE_TEKEN & .ExportStandaardPad
+         Print #BestandsHandle,
+
+         Print #BestandsHandle, SECTIE_NAAM_BEGIN & "QUERY" & SECTIE_NAAM_EINDE
+         Print #BestandsHandle, "AutoSluiten" & WAARDE_TEKEN & CStr(.QueryAutoSluiten)
+         Print #BestandsHandle, "AutoUitvoeren" & WAARDE_TEKEN & CStr(.QueryAutoUitvoeren)
+         Print #BestandsHandle, "Recordsets" & WAARDE_TEKEN & CStr(.QueryRecordSets)
+         Print #BestandsHandle, "Timeout" & WAARDE_TEKEN & CStr(.QueryTimeout)
+         Print #BestandsHandle,
+
+         Print #BestandsHandle, SECTIE_NAAM_BEGIN & "VERBINDING" & SECTIE_NAAM_EINDE
+         Print #BestandsHandle, .VerbindingsInformatie
+         Print #BestandsHandle,
+
+         Print #BestandsHandle, SECTIE_NAAM_BEGIN & "VOORBEELD" & SECTIE_NAAM_EINDE
+         Print #BestandsHandle, "KolomBreedte" & WAARDE_TEKEN & CStr(.VoorbeeldKolomBreedte)
+         Print #BestandsHandle, "Regels" & WAARDE_TEKEN & CStr(.VoorbeeldRegels)
+      End With
+   Close BestandsHandle
+
+   MsgBox Bericht & vbCr & InstellingenPad, vbInformation
+
+EindeProcedure:
+   Close BestandsHandle
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Instellingenbestand: ", Pad:=InstellingenPad) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure controleert of er een fout is opgetreden tijdens de recenste API functie aanroep.
+Public Function ControleerOpAPIFout(TerugGestuurd As Long, Optional ExtraInformatie As String = Empty) As Long
+Dim Bericht As String
+Dim FoutCode As Long
+Dim Lengte As Long
+Dim Omschrijving As String
+
+   FoutCode = Err.LastDllError
    Err.Clear
-   On Error GoTo ErrorTrap
+   On Error GoTo Fout
 
-   If Not ErrorCode = ERROR_SUCCESS Then
-      Description = String$(MAX_STRING, vbNullChar)
-      Length = FormatMessageA(FORMAT_MESSAGE_ARGUMENT_ARRAY Or FORMAT_MESSAGE_FROM_SYSTEM, CLng(0), ErrorCode, CLng(0), Description, Len(Description), StrPtr(StrConv(ExtraInformation, vbFromUnicode)))
-      If Length = 0 Then
-         Description = "No description."
+   If Not FoutCode = ERROR_SUCCESS Then
+      Omschrijving = String$(MAX_STRING, vbNullChar)
+      Lengte = FormatMessageA(FORMAT_MESSAGE_ARGUMENT_ARRAY Or FORMAT_MESSAGE_FROM_SYSTEM, CLng(0), FoutCode, CLng(0), Omschrijving, Len(Omschrijving), StrPtr(StrConv(ExtraInformatie, vbFromUnicode)))
+      If Lengte = 0 Then
+         Omschrijving = "Geen omschrijving."
       Else
-         Description = Left$(Description, Length - 1)
+         Omschrijving = Left$(Omschrijving, Lengte - 1)
       End If
-     
-      Message = "API Error code: " & CStr(ErrorCode) & vbCr
-      Message = Message & Description
-      If Not Right$(Message, 1) = vbCr Then Message = Message & vbCr
-      Message = Message & "Return value: " & CStr(TerugGestuurd)
-      MsgBox Message, vbExclamation
+
+      Bericht = "API Foutcode: " & CStr(FoutCode) & vbCr
+      Bericht = Bericht & Omschrijving
+      If Not Right$(Bericht, 1) = vbCr Then Bericht = Bericht & vbCr
+      Bericht = Bericht & "Terug gestuurde waarde: " & CStr(TerugGestuurd)
+      MsgBox Bericht, vbExclamation
    End If
-EndRoutine:
-   CheckForAPIError = TerugGestuurd
+EindeProcedure:
+   ControleerOpAPIFout = TerugGestuurd
    Exit Function
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure closes all windows that might be open.
-Public Sub CloseAllWindows()
-On Error GoTo ErrorTrap
-Dim Window As Form
-   
-   For Each Window In Forms
-      Unload Window
-   Next Window
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-'This procedure closes the workbook at the specified path if it is open in Microsoft Excel.
-Private Sub CloseExcelWorkBook(Path As String)
-On Error GoTo ErrorTrap
-Dim WorkBookO As Excel.Workbook
-
-   Set WorkBookO = GetObject(Path)
-   WorkBookO.Close SaveChanges:=False
-   Set WorkBookO = Nothing
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Path: ", Path:=Path) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-'This procedure manages the current session's command line arguments.
-Public Function CommandLineArguments(Optional SessionParameters As String = vbNullString) As CommandLineArgumentsStructure
-On Error GoTo ErrorTrap
-Dim Extensions As Collection
-Dim Message As String
-Dim Parameter As Variant
-Dim Parameters() As String
-Dim Position As Long
-Static CurrentCommandLineArguments As CommandLineArgumentsStructure
-
-   With CurrentCommandLineArguments
-      .Processed = True
-
-      If Not SessionParameters = vbNullString Then
-         ItemIsUnique Extensions, , ResetList:=True
-
-         Position = InStr(SessionParameters, ARGUMENT_CHARACTER & ARGUMENT_CHARACTER)
-         If Position > 0 Then
-            .SettingsPath = Mid$(SessionParameters, Position + Len(ARGUMENT_CHARACTER))
-         Else
-            Parameters = Split(SessionParameters, ARGUMENT_CHARACTER)
-
-            For Each Parameter In Parameters
-               If Not Trim$(Parameter) = vbNullString Then
-                  Parameter = Unquote(CStr(Parameter))
-   
-                  If ItemIsUnique(Extensions, "." & LCase$(FileSystemO().GetExtensionName(CStr(Parameter)))) Then
-                     Select Case "." & LCase$(FileSystemO().GetExtensionName(CStr(Parameter)))
-                        Case ".ini"
-                           .SettingsPath = Parameter
-                        Case ".lst"
-                           .SessionPath = Parameter
-                        Case ".qa"
-                           .QueryPath = Parameter
-                        Case Else
-                           If Not Trim$(Parameter) = vbNullString Then
-                              Message = "Unrecognized command line argument: """ & Parameter & """."
-                              If ProcessSessionList() = vbNullString Then
-                                 MsgBox Message, vbExclamation
-                              Else
-                                 Message = Message & vbCr & "Session list: """ & ProcessSessionList() & """."
-                                 If MsgBox(Message, vbExclamation Or vbOKCancel) = vbCancel Then AbortSessions NewAbortSessions:=True
-                              End If
-                              .Processed = False
-                           End If
-                     End Select
-                  Else
-                     Message = "Only one settings file and/or query can be specified at a time."
-                     If Not ProcessSessionList() = vbNullString Then Message = Message & vbCr & "Session list: """ & ProcessSessionList() & """."
-                     MsgBox Message, vbExclamation
-                     .Processed = False
-                  End If
-               End If
-            Next Parameter
-         End If
-      End If
-   End With
-
-EndRoutine:
-   CommandLineArguments = CurrentCommandLineArguments
-   Exit Function
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-'This procedure manages the connection with a database.
-Public Function Connection(Optional ConnectionInformation As String = vbNullString, Optional CloseConnection As Boolean = False, Optional Reset As Boolean = False) As Adodb.Connection
-On Error GoTo ErrorTrap
-Static DatabaseConnection As New Adodb.Connection
-   
-   If Not DatabaseConnection Is Nothing Then
-      If Reset Then
-         DatabaseConnection.Errors.Clear
-      ElseIf Not ConnectionInformation = vbNullString Then
-         If Not FormatConnectionInformation(ConnectionInformation) = vbNullString Then DatabaseConnection.Open ConnectionInformation
-      ElseIf CloseConnection Then
-         If ConnectionOpened(DatabaseConnection) Then
-            DatabaseConnection.Close
-            Set DatabaseConnection = Nothing
-         End If
-      End If
-   End If
-   
-EndRoutine:
-   Set Connection = DatabaseConnection
-   Exit Function
-  
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure checks whether the specified connection is open.
-Public Function ConnectionOpened(ConnectionO As Adodb.Connection) As Boolean
-On Error GoTo ErrorTrap
-Dim Opened As Boolean
-
-   If Not ConnectionO Is Nothing Then Opened = (ConnectionO.State = adStateOpen)
-
-EndRoutine:
-   ConnectionOpened = Opened
-   Exit Function
-   
-ErrorTrap:
-   Opened = False
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure returns this program's default settings.
-Private Function DefaultSettings() As SettingsStructure
-On Error GoTo ErrorTrap
-Dim ProgramSettings As SettingsStructure
-   
-   With ProgramSettings
-      .BatchInteractive = False
-      .BatchRange = vbNullString
-      .BatchQueryPath = vbNullString
-      .ConnectionInformation = vbNullString
-      .EMailText = vbNullString
-      .ExportAutoOpen = False
-      .ExportAutoOverwrite = False
-      .ExportAutoSend = False
-      .ExportCCRecipient = vbNullString
-      .ExportDefaultPath = ".\Export.xls"
-      .ExportPadColumn = False
-      .ExportRecipient = vbNullString
-      .ExportSender = vbNullString
-      .ExportSubject = vbNullString
-      .FileName = "Qa.ini"
-      .PreviewColumnWidth = -1
-      .PreviewLines = 10
-      .QueryAutoClose = False
-      .QueryAutoExecute = False
-      .QueryRecordSets = False
-      .QueryTimeout = 10
-   End With
-   
-EndRoutine:
-   DefaultSettings = ProgramSettings
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-'This procedure displays the connection status.
-Public Sub DisplayConnectionStatus()
-On Error GoTo ErrorTrap
-   If ConnectionOpened(Connection()) Then
-      DisplayStatus "Connected to the database. - Settings: " & Settings().FileName & vbCrLf
-   Else
-      DisplayStatus "There is no connection to a database." & vbCrLf
-   End If
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-
-
-'This program displays information about this program.
-Public Sub DisplayProgramInformation()
-On Error GoTo ErrorTrap
-   With App
-      MsgBox .Comments, vbInformation, .Title & " " & ProgramVersion() & " - " & "by: " & .CompanyName & ", " & "2009-2016"
-   End With
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-'This procedure displays the specified query result.
-Public Sub DisplayQueryResult(QueryResultBox As TextBox, ResultIndex As Long)
-On Error GoTo ErrorTrap
-Dim ResultText As String
-
-   DisplayStatus "Busy creating the query result preview..." & vbCrLf
-   ResultText = QueryResultText(QueryResults(, , ResultIndex))
-   QueryResultBox.Text = ResultText
-   If InterfaceWindow.Visible And Len(QueryResultBox.Text) < Len(ResultText) Then MsgBox "The query result cannot be fully displayed.", vbInformation
-EndRoutine:
-   DisplayStatus StatusAfterQuery(ResultIndex) & vbCrLf
-   Exit Sub
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-
-'This procedure displays the specified text in the specified box.
-Public Sub DisplayStatus(Optional Text As String = vbNullString, Optional NewBox As TextBox = Nothing)
-On Error GoTo ErrorTrap
-Dim PreviousLength As Long
-Static Box As TextBox
-
-   If Not NewBox Is Nothing Then Set Box = NewBox
-
-   If Not Box Is Nothing Then
-      With Box
-         PreviousLength = Len(.Text)
-         .Text = .Text & Text
-         If Len(.Text) < PreviousLength + Len(Text) Then .Text = Text
-         .SelStart = Len(.Text) - Len(Text)
-         .SelLength = 0
-      End With
-   End If
-
-   DoEvents
-EndRoutine:
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-'This procedure converts the specified error list to text.
-Public Function ErrorListText(List As Adodb.Errors) As String
-On Error GoTo ErrorTrap
-Dim ErrorO As Adodb.Error
-Dim Text As String
-
-   Text = vbNullString
-   If List.Count = 1 Then Text = Text & "1 error " Else Text = Text & CStr(List.Count) & " errors"
-   Text = Text & " occurred while executing the query:" & vbCrLf
-   Text = Text & Pad("Native", 11)
-   Text = Text & Pad("Code", 11)
-   Text = Text & Pad("Source", 36)
-   Text = Text & Pad("SQL state", 11)
-   Text = Text & "Description" & vbCrLf
-   For Each ErrorO In List
-      With ErrorO
-         Text = Text & Pad(CStr(.NativeError), 10, PadLeft:=True) & " "
-         Text = Text & Pad(CStr(.Number), 10, PadLeft:=True) & " "
-         Text = Text & Pad(.Source, 35) & " "
-         Text = Text & Pad(.SqlState, 10, PadLeft:=True) & " "
-         Text = Text & .Description & vbCrLf
-      End With
-   Next ErrorO
-
-EndRoutine:
-   ErrorListText = Text
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure returns the Microsoft Excel column id for the specified column number.
-Private Function ExcelColumnId(ByVal Column As Long) As String
-On Error GoTo ErrorTrap
-Dim ColumnId As String
+'Deze procedure stuurt de Microsoft Excel kolom id voor het opgegeven kolom nummer terug.
+Private Function ExcelKolomId(ByVal Kolom As Long) As String
+On Error GoTo Fout
+Dim KolomId As String
 Dim Letter1 As Long
 Dim Letter2 As Long
-     
-   ColumnId = vbNullString
-   If Column > EXCEL_MAXIMUM_COLUMN_NUMBER Then
-      ExcelColumnId = vbNullString
+
+   KolomId = vbNullString
+   If Kolom > EXCEL_MAXIMUM_AANTAL_KOLOMMEN Then
+      ExcelKolomId = vbNullString
       Exit Function
    End If
-   
-   For Letter1 = NO_LETTER To ASCII_Z
+
+   For Letter1 = GEEN_LETTER To ASCII_Z
       For Letter2 = ASCII_A To ASCII_Z
-         If Column = 0 Then
-            If Letter1 = NO_LETTER Then
-               ColumnId = Chr$(Letter2)
+         If Kolom = 0 Then
+            If Letter1 = GEEN_LETTER Then
+               KolomId = Chr$(Letter2)
             Else
-               ColumnId = Chr$(Letter1) & Chr$(Letter2)
+               KolomId = Chr$(Letter1) & Chr$(Letter2)
             End If
-            ExcelColumnId = ColumnId
+            ExcelKolomId = KolomId
             Exit Function
          End If
-         Column = Column - 1
+         Kolom = Kolom - 1
       Next Letter2
    Next Letter1
-   
-EndRoutine:
-   ExcelColumnId = ColumnId
+
+EindeProcedure:
+   ExcelKolomId = KolomId
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procedure executes a quuery batch.
-Private Sub ExecuteBatch()
-On Error GoTo ErrorTrap
-Dim EMail As EMailClass
-Dim ErrorInformation As String
-Dim ExportPath As String
-Dim ExportPaths As New Collection
-Dim ExportExecuted As Boolean
-Dim FirstParameter As Long
-Dim FirstQuery As Long
-Dim Index As Long
-Dim LastParameter As Long
-Dim LastQuery As Long
-Dim Position As Long
-Dim QueryIndex As Long
-Dim QueryPath As String
-Dim QueryPathExtension As String
+'Deze procedure exporteert het queryresultaat naar een tekstbestand.
+Private Function ExporteerAlsTekst(ExportPad As String) As Boolean
+On Error GoTo Fout
+Dim BestandsHandle As Long
+Dim EersteResultaat As Long
+Dim ExportAfgebroken As Boolean
+Dim Kolom As Long
+Dim LaatsteResultaat As Long
+Dim ResultaatIndex As Long
+Dim Rij As Long
 
-   DisplayConnectionStatus
+   ExportAfgebroken = False
+   QueryResultaten , , , EersteResultaat, LaatsteResultaat
 
-   With Settings()
-      Position = InStr(.BatchRange, "-")
-      If Not Position = 0 Then
-         FirstQuery = CLng(Val(Trim$(Left$(.BatchRange, Position - 1))))
-         LastQuery = CLng(Val(Trim$(Mid$(.BatchRange, Position + 1))))
-         QueryPathExtension = "." & FileSystemO().GetExtensionName(.BatchQueryPath)
-   
-         If CStr(FirstQuery) = Trim$(Left$(.BatchRange, Position - 1)) And CStr(LastQuery) = Trim$(Mid$(.BatchRange, Position + 1)) And FirstQuery <= LastQuery Then
-            For QueryIndex = FirstQuery To LastQuery
-               QueryPath = Unquote(Left$(.BatchQueryPath, Len(.BatchQueryPath) - Len(QueryPathExtension)) & CStr(QueryIndex) & QueryPathExtension)
-   
-               If Query(QueryPath).Opened Then
-                  QueryParameters Query().Code
-   
-                  If .BatchInteractive And QueryIndex = FirstQuery Then
-                     AbortInteractiveBatch AbortBatch:=True
-                     InterfaceWindow.Show
-
-                     If Not Trim$(Command$()) = vbNullString Then DisplayStatus "Command line: " & Command$() & vbCrLf
-                     If Not ProcessSessionList() = vbNullString Then DisplayStatus "Session list: " & ProcessSessionList() & vbCrLf
-                     DisplayStatus "Query: " & QueryPath & vbCrLf
-
-                     Do While DoEvents() > 0 And InterfaceWindow.Enabled: CheckForAPIError WaitMessage(): Loop
-                     If AbortInteractiveBatch() Then Exit Sub
-   
-                     Screen.MousePointer = vbHourglass
-                     InteractiveBatchParameters , , Remove:=True
-                     QueryParameters , , , FirstParameter, LastParameter
-                     For Index = FirstParameter To LastParameter
-                        InteractiveBatchParameters , QueryParameters(, Index).Value
-                     Next Index
-                  Else
-                     If QueryIndex = FirstQuery Then
-                        If Not Trim$(Command$()) = vbNullString Then DisplayStatus "Command line: " & Command$() & vbCrLf
-                        If Not ProcessSessionList() = vbNullString Then DisplayStatus "Session list: " & ProcessSessionList() & vbCrLf
-                     End If
-
-                     DisplayStatus "Query: " & QueryPath & vbCrLf
-   
-                     QueryParameters , , , FirstParameter, LastParameter
-                     For Index = FirstParameter To LastParameter
-                        With QueryParameters(, Index)
-                           QueryParameters , Index, .DefaultValue & Mid$(.Mask, Len(.DefaultValue) + 1)
-                           If Not (.Comments = vbNullString And .FixedInput = vbNullString And .FixedMask = vbNullString And .Mask = vbNullString And .ParameterName = vbNullString And .Properties = vbNullString) Then ParameterSymbolError "Found ignored elements in batch query.", Index
-                        End With
-                     Next Index
-                  End If
-                  
-                  If InvalidParameterInput(ErrorInformation) = NO_PARAMETER Then
-                     DisplayStatus "Busy executing the query..." & vbCrLf
-                     QueryResults , RemoveResults:=True
-                     ExecuteQuery Query().Code
-   
-                     If ConnectionOpened(Connection()) Then
-                        If Connection().Errors.Count = 0 Then
-                           DisplayStatus StatusAfterQuery(ResultIndex:=0) & vbCrLf
-                           If Not .ExportDefaultPath = vbNullString Then
-                              DisplayStatus "Busy exporting the query result..." & vbCrLf
-                              ExportPath = FileSystemO().GetAbsolutePathName(Unquote(Trim$(ReplaceSymbols(.ExportDefaultPath))))
-   
-                              If FileSystemO().FolderExists(FileSystemO().GetParentFolderName(ExportPath)) Then
-                                 ExportPaths.Add ExportPath
-                                 ExportExecuted = ExportResult(ExportPath)
-                                 If ExportExecuted Then
-                                    If FileSystemO().FileExists(ExportPath) And .ExportAutoOpen Then
-                                       DisplayStatus "The export will be opened automatically..." & vbCrLf
-                                       CheckForAPIError ShellExecuteA(CLng(0), "open", ExportPath, vbNullString, vbNullString, SW_SHOWNORMAL)
-                                    End If
-            
-                                    DisplayStatus "Finished exporting." & vbCrLf
-                                 Else
-                                    DisplayStatus "Export canceled." & vbCrLf
-                                 End If
-                              Else
-                                 MsgBox "Invalid export path." & vbCr & "Current path: " & CurDir$(), vbExclamation
-                                 DisplayStatus "Invalid export path." & vbCrLf
-                              End If
-                           Else
-                              DisplayStatus ErrorListText(Connection().Errors)
-                           End If
-                        End If
-                        
-                        Connection , , Reset:=True
-                     End If
-                  Else
-                     ParameterSymbolError "Invalid parameter input: " & ErrorInformation
-                  End If
-               End If
-            Next QueryIndex
-            
-            If (Not .ExportDefaultPath = vbNullString) And ExportExecuted Then
-               If Not (.ExportRecipient = vbNullString And .ExportCCRecipient = vbNullString) Then
-                  DisplayStatus "Busy creating the e-mail containing the export..." & vbCrLf
-                  Set EMail = New EMailClass
-                  EMail.AddQueryResults , ExportPaths
-                  Set EMail = Nothing
-               End If
-            End If
-         Else
-            MsgBox "Invalid query batch range: """ & .BatchRange & """.", vbExclamation
-         End If
-      End If
-   End With
-   
-EndRoutine:
-   Screen.MousePointer = vbDefault
-   Unload InterfaceWindow
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-
-'This procedure executes a query on a database.
-Public Sub ExecuteQuery(QueryCode As String)
-On Error GoTo ErrorTrap
-Dim CommandO As New Adodb.Command
-Dim Result As Adodb.Recordset
-Dim QueryPath As String
-
-   QueryPath = Query().Path
-
-   If ConnectionOpened(Connection()) Then
-      Set CommandO.ActiveConnection = Connection()
-
-      If Not CommandO Is Nothing Then
-         CommandO.CommandText = FillInParameters(QueryCode)
-         CommandO.CommandText = RemoveFormatting(CommandO.CommandText, SQL_COMMENT_LINE_START, SQL_COMMENT_LINE_END, STRING_CHARACTERS)
-         CommandO.CommandText = RemoveFormatting(CommandO.CommandText, SQL_COMMENT_BLOCK_START, SQL_COMMENT_BLOCK_END, STRING_CHARACTERS)
-         CommandO.CommandTimeout = Settings().QueryTimeout
-         CommandO.CommandType = adCmdText
-
-         Set Result = CommandO.Execute
-      End If
-
-      Do While ConnectionOpened(Result.ActiveConnection)
-         QueryResults Result
-
-         If Settings().QueryRecordSets Then Set Result = Result.NextRecordset Else Exit Do
-      Loop
-   End If
-   
-EndRoutine:
-   DisplayStatus "Executed query: " & vbCrLf & CommandO.CommandText & vbCrLf
-
-   If Not Result Is Nothing Then
-      If ConnectionOpened(Result.ActiveConnection) Then Result.Close
-   End If
-   
-   Set CommandO = Nothing
-   Set Result = Nothing
-   Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Query: ", Path:=QueryPath) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-'This procedure exacutes a session using the specified parameters.
-Private Sub ExecuteSession(SessionParameters As String)
-On Error GoTo ErrorTrap
-Static MostRecentConnectionInformation As String
-
-   With CommandLineArguments(SessionParameters)
-      If .Processed Then
-         If .SettingsPath = vbNullString Then
-            Settings FileSystemO().BuildPath(App.Path, DefaultSettings().FileName)
-         Else
-            Settings .SettingsPath
-         End If
-         
-         With Settings()
-            If Not .ConnectionInformation = MostRecentConnectionInformation Then
-               Connection , CloseConnection:=True
-               If InStr(UCase$(.ConnectionInformation), USER_VARIABLE) > 0 Or InStr(UCase$(.ConnectionInformation), PASSWORD_VARIABLE) > 0 Then
-                  LogonWindow.Show vbModal
-               Else
-                  Connection .ConnectionInformation
-               End If
-            End If
-      
-            MostRecentConnectionInformation = .ConnectionInformation
-         End With
-
-         If ConnectionOpened(Connection()) Then
-            If BatchModeActive() Then
-               ExecuteBatch
-            Else
-               InterfaceWindow.Show
-               Do While DoEvents() > 0: CheckForAPIError WaitMessage(): Loop
-            End If
-        End If
-     End If
-   End With
-
-EndRoutine:
-   Exit Sub
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Sub
-
-
-
-
-'This procedure exports the query result to a text file.
-Private Function ExportAsText(ExportPath As String) As Boolean
-On Error GoTo ErrorTrap
-Dim Column As Long
-Dim ExportAborted As Boolean
-Dim FileHandle As Long
-Dim FirstResult As Long
-Dim LastResult As Long
-Dim ResultIndex As Long
-Dim Row As Long
-
-   ExportAborted = False
-   QueryResults , , , FirstResult, LastResult
-
-   FileHandle = FreeFile()
-   Open ExportPath For Output Lock Read Write As FileHandle
-      For ResultIndex = FirstResult To LastResult
-         With QueryResults(, , ResultIndex)
-            If Not CheckForAPIError(SafeArrayGetDim(.Table())) = 0 Then
-               If Not LastResult = FirstResult Then Print #FileHandle, "[Result: #" & CStr((ResultIndex - FirstResult) + 1) & "]"
-               For Row = LBound(.Table(), 1) To UBound(.Table(), 1)
-                  For Column = LBound(.Table(), 2) To UBound(.Table(), 2)
-                     If Settings().ExportPadColumn Then
-                        Print #FileHandle, Pad(.Table(Row, Column), .ColumnWidth(Column), .RightAligned(Column)) & " ";
+   BestandsHandle = FreeFile()
+   Open ExportPad For Output Lock Read Write As BestandsHandle
+      For ResultaatIndex = EersteResultaat To LaatsteResultaat
+         With QueryResultaten(, , ResultaatIndex)
+            If Not ControleerOpAPIFout(SafeArrayGetDim(.Tabel())) = 0 Then
+               If Not LaatsteResultaat = EersteResultaat Then Print #BestandsHandle, "[Resultaat: #" & CStr((ResultaatIndex - EersteResultaat) + 1) & "]"
+               For Rij = LBound(.Tabel(), 1) To UBound(.Tabel(), 1)
+                  For Kolom = LBound(.Tabel(), 2) To UBound(.Tabel(), 2)
+                     If Instellingen().ExportKolomAanvullen Then
+                        Print #BestandsHandle, VulAan(.Tabel(Rij, Kolom), .KolomBreedte(Kolom), .RechtsUitlijnen(Kolom)) & " ";
                      Else
-                        Print #FileHandle, .Table(Row, Column); vbTab;
+                        Print #BestandsHandle, .Tabel(Rij, Kolom); vbTab;
                      End If
-                  Next Column
-                  Print #FileHandle,
-               Next Row
+                  Next Kolom
+                  Print #BestandsHandle,
+               Next Rij
             End If
          End With
-      Next ResultIndex
-EndRoutine:
-   Close FileHandle
+      Next ResultaatIndex
+EindeProcedure:
+   Close BestandsHandle
 
-   ExportAsText = ExportAborted
+   ExporteerAlsTekst = ExportAfgebroken
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Export path: ", Path:=ExportPath) = vbIgnore Then
-      ExportAborted = True
-      Resume EndRoutine
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Export pad: ", Pad:=ExportPad) = vbIgnore Then
+      ExportAfgebroken = True
+      Resume EindeProcedure
    End If
-   If HandleError() = vbRetry Then Resume
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure exports the query result.
-Public Function ExportResult(ExportPath As String) As Boolean
-On Error GoTo ErrorTrap
-Dim ExportAborted As Boolean
-Dim FileType As String
-
-   ExportAborted = False
-   FileType = "." & LCase$(Trim$(FileSystemO().GetExtensionName(ExportPath)))
-
-   If FileSystemO().FileExists(ExportPath) Then
-      If Not Settings().ExportAutoOverwrite Then
-         If MsgBox("The file """ & ExportPath & """ already exists. Overwrite?", vbQuestion Or vbYesNo Or vbDefaultButton2) = vbNo Then ExportAborted = True
-      End If
-
-      If Not ExportAborted Then
-         If FileType = ".xls" Or FileType = ".xlsx" Then CloseExcelWorkBook ExportPath
-         Kill ExportPath
-      End If
-   End If
-
-   If Not ExportAborted Then
-      Select Case FileType
-         Case ".xls"
-            ExportAborted = ExportToExcel(ExportPath, xlWorkbookNormal)
-         Case ".xlsx"
-            ExportAborted = ExportToExcel(ExportPath, xlWorkbookDefault)
-         Case Else
-            ExportAborted = ExportAsText(ExportPath)
-      End Select
-   End If
-   
-EndRoutine:
-   ExportResult = Not ExportAborted
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then
-      ExportAborted = True
-      Resume EndRoutine
-   End If
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure exports the query result to a Microsoft Excel workbook.
-Private Function ExportToExcel(ExportPath As String, ExcelFormat As Long) As Boolean
-On Error GoTo ErrorTrap
-Dim Column As Long
-Dim ColumnId As String
-Dim ExportAborted As Boolean
-Dim FirstResult As Long
-Dim LastResult As Long
-Dim Message As String
+'Deze procedure exporteert het queryresultaat naar een Microsoft Excel werkmap.
+Private Function ExporteerNaarExcel(ExportPad As String, ExcelFormaat As Long) As Boolean
+On Error GoTo Fout
+Dim Bericht As String
+Dim EersteResultaat As Long
+Dim ExportAfgebroken As Boolean
+Dim Kolom As Long
+Dim KolomId As String
+Dim LaatsteResultaat As Long
 Dim MSExcel As New Excel.Application
-Dim ResultIndex As Long
-Dim WorkBookO As Excel.Workbook
-Dim WorkSheetO As Excel.Worksheet
+Dim ResultaatIndex As Long
+Dim WerkBlad As Excel.Worksheet
+Dim WerkMap As Excel.Workbook
 
-   ExportAborted = False
-   QueryResults , , , FirstResult, LastResult
+   ExportAfgebroken = False
+   QueryResultaten , , , EersteResultaat, LaatsteResultaat
 
    MSExcel.DisplayAlerts = False
    MSExcel.Interactive = False
    MSExcel.ScreenUpdating = False
    MSExcel.Workbooks.Add
 
-   Set WorkBookO = MSExcel.Workbooks.Item(1)
-   WorkBookO.Activate
+   Set WerkMap = MSExcel.Workbooks.Item(1)
+   WerkMap.Activate
 
-   Do Until WorkBookO.Worksheets.Count <= 1
-      WorkBookO.Worksheets.Item(WorkBookO.Worksheets.Count).Delete
+   Do Until WerkMap.Worksheets.Count <= 1
+      WerkMap.Worksheets.Item(WerkMap.Worksheets.Count).Delete
    Loop
 
-   Do Until WorkBookO.Worksheets.Count >= Abs(LastResult - FirstResult) + 1
-      WorkBookO.Worksheets.Add
+   Do Until WerkMap.Worksheets.Count >= Abs(LaatsteResultaat - EersteResultaat) + 1
+      WerkMap.Worksheets.Add
    Loop
 
-   For ResultIndex = FirstResult To LastResult
-      With QueryResults(, , ResultIndex)
-         If Not CheckForAPIError(SafeArrayGetDim(.Table())) = 0 Then
-            If NumberOfItems(.Table, Dimension:=2) > EXCEL_MAXIMUM_COLUMN_NUMBER Then
-               Message = "The query result contains too many columns to export these to Microsoft Excel." & vbCr
-               Message = Message & "The maximum allowed number of columns is: " & CStr(EXCEL_MAXIMUM_COLUMN_NUMBER)
-               MsgBox Message, vbExclamation
+   For ResultaatIndex = EersteResultaat To LaatsteResultaat
+      With QueryResultaten(, , ResultaatIndex)
+         If Not ControleerOpAPIFout(SafeArrayGetDim(.Tabel())) = 0 Then
+            If AantalItems(.Tabel, Dimensie:=2) > EXCEL_MAXIMUM_AANTAL_KOLOMMEN Then
+               Bericht = "Het queryresultaat bevat te veel kolommen om deze naar Microsoft Excel te exporteren." & vbCr
+               Bericht = Bericht & "Het maximaal toegestane aantal kolommen is: " & CStr(EXCEL_MAXIMUM_AANTAL_KOLOMMEN)
+               MsgBox Bericht, vbExclamation
             Else
-               Set WorkSheetO = WorkBookO.Worksheets.Item((ResultIndex - FirstResult) + 1)
-               WorkSheetO.Activate
-               If Not LastResult = FirstResult Then WorkSheetO.Name = "Result " & CStr((ResultIndex - FirstResult) + 1)
+               Set WerkBlad = WerkMap.Worksheets.Item((ResultaatIndex - EersteResultaat) + 1)
+               WerkBlad.Activate
+               If Not LaatsteResultaat = EersteResultaat Then WerkBlad.Name = "Resultaat " & CStr((ResultaatIndex - EersteResultaat) + 1)
    
-               WorkSheetO.Range("A1:" & ExcelColumnId(NumberOfItems(.Table(), Dimension:=2)) & CStr(NumberOfItems(.Table(), Dimension:=1) + 1)).Value = .Table()
-               For Column = LBound(.Table(), 2) To UBound(.Table(), 2)
-                  ColumnId = ExcelColumnId(Column)
-                  WorkSheetO.Range(ColumnId & "1:" & ColumnId & "1").Font.Bold = True
-                  If .RightAligned(Column) Then WorkSheetO.Range(ColumnId & "1:" & ColumnId & CStr(NumberOfItems(.Table(), Dimension:=1) + 1)).HorizontalAlignment = xlRight
-               Next Column
-               WorkSheetO.Range("A:" & ExcelColumnId(NumberOfItems(.Table(), Dimension:=2))).Columns.AutoFit
+               WerkBlad.Range("A1:" & ExcelKolomId(AantalItems(.Tabel(), Dimensie:=2)) & CStr(AantalItems(.Tabel(), Dimensie:=1) + 1)).Value = .Tabel()
+               For Kolom = LBound(.Tabel(), 2) To UBound(.Tabel(), 2)
+                  KolomId = ExcelKolomId(Kolom)
+                  WerkBlad.Range(KolomId & "1:" & KolomId & "1").Font.Bold = True
+                  If .RechtsUitlijnen(Kolom) Then WerkBlad.Range(KolomId & "1:" & KolomId & CStr(AantalItems(.Tabel(), Dimensie:=1) + 1)).HorizontalAlignment = xlRight
+               Next Kolom
+               WerkBlad.Range("A:" & ExcelKolomId(AantalItems(.Tabel(), Dimensie:=2))).Columns.AutoFit
             End If
          End If
       End With
 
-      If ResultIndex = LastResult Then
-         WorkBookO.Worksheets.Item(1).Activate
-         WorkBookO.SaveAs ExportPath, ExcelFormat
-         WorkBookO.Close
+      If ResultaatIndex = LaatsteResultaat Then
+         WerkMap.Worksheets.Item(1).Activate
+         WerkMap.SaveAs ExportPad, ExcelFormaat
+         WerkMap.Close
       End If
-   Next ResultIndex
+   Next ResultaatIndex
 
-EndRoutine:
+EindeProcedure:
    If Not MSExcel Is Nothing Then
       MSExcel.Quit
       MSExcel.DisplayAlerts = True
@@ -962,1138 +438,896 @@ EndRoutine:
    End If
 
    Set MSExcel = Nothing
-   Set WorkSheetO = Nothing
-   Set WorkBookO = Nothing
+   Set WerkBlad = Nothing
+   Set WerkMap = Nothing
 
-   ExportToExcel = ExportAborted
+   ExporteerNaarExcel = ExportAfgebroken
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Export path: ", Path:=ExportPath) = vbIgnore Then
-      ExportAborted = True
-      Resume EndRoutine
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Export pad: ", Pad:=ExportPad) = vbIgnore Then
+      ExportAfgebroken = True
+      Resume EindeProcedure
    End If
-   If HandleError() = vbRetry Then Resume
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure manages the file system related functions.
-Public Function FileSystemO() As FileSystemObject
-On Error GoTo ErrorTrap
-Static CurrentFileSystem As New FileSystemObject
-EndRoutine:
-   Set FileSystemO = CurrentFileSystem
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
+'Deze procedure exporteert het queryresultaat.
+Public Function ExporteerResultaat(ExportPad As String) As Boolean
+On Error GoTo Fout
+Dim BestandsType As String
+Dim ExportAfgebroken As Boolean
 
+   ExportAfgebroken = False
+   BestandsType = LCase$(Trim$("." & BestandsSysteem().GetExtensionName(ExportPad)))
 
-'This procedure fills the specified query code with the parameter input.
-Private Function FillInParameters(QueryCode As String) As String
-On Error GoTo ErrorTrap
-Dim FirstParameter As Long
-Dim Index As Long
-Dim LastParameter As Long
-Dim Position As Long
-Dim QueryWithoutParameters As String
-Dim QueryWithParameters As String
+   If BestandsSysteem().FileExists(ExportPad) Then
+      If Not Instellingen().ExportAutoOverschrijven Then
+         If MsgBox("Het bestand """ & ExportPad & """ bestaat al. Overschrijven?", vbQuestion Or vbYesNo Or vbDefaultButton2) = vbNo Then ExportAfgebroken = True
+      End If
 
-   QueryParameters , , , FirstParameter, LastParameter
-   If FirstParameter = NO_PARAMETER And LastParameter = NO_PARAMETER Then
-      QueryWithParameters = QueryCode
-   Else
-      Index = FirstParameter
-      QueryWithParameters = vbNullString
-      QueryWithoutParameters = QueryCode
-      Do Until Index > LastParameter
-         SessionParameters , QueryParameters(, Index).Value
-
-         Position = QueryParameters(, Index).Position
-         QueryWithParameters = QueryWithParameters & Left$(QueryWithoutParameters, Position - 1)
-         QueryWithParameters = QueryWithParameters & ReplaceSymbols(QueryParameters(, Index).Value)
-         QueryWithoutParameters = Mid$(QueryWithoutParameters, Position + QueryParameters(, Index).Length)
-         Index = Index + 1
-      Loop
-      QueryWithParameters = QueryWithParameters & QueryWithoutParameters
-   End If
-EndRoutine:
-   FillInParameters = QueryWithParameters
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-'This procedure checks the specified connection information and formats it.
-Private Function FormatConnectionInformation(ConnectionInformation As String) As String
-On Error GoTo ErrorTrap
-Dim Character As String
-Dim CurrentStringCharacter As String
-Dim FormattedConnectionInformation As String
-Dim Parameter As String
-Dim ParameterName As String
-Dim ParameterNames As Collection
-Dim ParameterStart As Long
-Dim Position As Long
-Dim Value As String
-
-   FormattedConnectionInformation = vbNullString
-  
-   If Not Trim$(ConnectionInformation) = vbNullString Then
-      CurrentStringCharacter = vbNullString
-      ItemIsUnique ParameterNames, , ResetList:=True
-      Position = 1
-      ParameterStart = Position
-      If Not Right$(Trim$(ConnectionInformation), Len(CONNECTION_PARAMETER_CHARACTER)) = CONNECTION_PARAMETER_CHARACTER Then ConnectionInformation = ConnectionInformation & CONNECTION_PARAMETER_CHARACTER
-      Do Until Position > Len(ConnectionInformation)
-         Character = Mid$(ConnectionInformation, Position, 1)
-         If InStr(STRING_CHARACTERS, Character) > 0 Then
-            If CurrentStringCharacter = vbNullString Then
-               CurrentStringCharacter = Character
-            ElseIf Character = CurrentStringCharacter Then
-               CurrentStringCharacter = vbNullString
-            End If
-         ElseIf Character = CONNECTION_PARAMETER_CHARACTER Then
-            If CurrentStringCharacter = vbNullString Then
-               Parameter = Mid$(ConnectionInformation, ParameterStart, Position - ParameterStart)
-
-               If InStr(Parameter, VALUE_CHARACTER) = 0 Then
-                  FormattedConnectionInformation = vbNullString
-                  MsgBox "Invalid parameter present in connection information: """ & Parameter & """. Expected character: " & VALUE_CHARACTER, vbExclamation
-                  Exit Do
-               End If
-
-               Value = ReadParameter(Parameter, ParameterName)
-
-               If Not ItemIsUnique(ParameterNames, ParameterName) Then
-                  FormattedConnectionInformation = vbNullString
-                  MsgBox "Parameter present multiple times in connection information: """ & Parameter & """.", vbExclamation
-                  Exit Do
-               End If
-               ParameterStart = Position + 1
-
-               FormattedConnectionInformation = FormattedConnectionInformation & ParameterName & VALUE_CHARACTER & Trim$(Value) & CONNECTION_PARAMETER_CHARACTER
-            End If
-         End If
-   
-         Position = Position + 1
-      Loop
-   
-      If Not CurrentStringCharacter = vbNullString Then
-         FormattedConnectionInformation = vbNullString
-         MsgBox "Unclosed string in connection information. Expected character: " & CurrentStringCharacter, vbExclamation
+      If Not ExportAfgebroken Then
+         If BestandsType = ".xls" Or BestandsType = ".xlsx" Then SluitExcelWerkmap ExportPad
+         Kill ExportPad
       End If
    End If
 
-EndRoutine:
-   FormatConnectionInformation = FormattedConnectionInformation
-   Exit Function
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-'This procedure formats the specified error description.
-Private Function FormatErrorDescription(ErrorDescription As String) As String
-On Error Resume Next
-Dim Description As String
-
-   Description = Trim$(ErrorDescription)
-   Do
-      Select Case Right$(Description, 1)
-         Case vbCr, vbLf
-            Description = Trim$(Left$(Description, Len(Description) - 1))
+   If Not ExportAfgebroken Then
+      Select Case BestandsType
+         Case ".xls"
+            ExportAfgebroken = ExporteerNaarExcel(ExportPad, xlWorkbookNormal)
+         Case ".xlsx"
+            ExportAfgebroken = ExporteerNaarExcel(ExportPad, xlWorkbookDefault)
          Case Else
-            Exit Do
+            ExportAfgebroken = ExporteerAlsTekst(ExportPad)
       End Select
-   Loop
-   If Not Right$(Description, 1) = "." Then Description = Description & "."
+   End If
 
-FormatErrorDescription = Description
-End Function
-
-'This procedure generates an input mask that is merged with the fixed input for the specified parameter.
-Private Function GenerateFixedMask(Index As Long) As String
-On Error GoTo ErrorTrap
-Dim Character As String
-Dim FixedMask As String
-Dim Position As Long
-
-With QueryParameters(, Index)
-   FixedMask = vbNullString
-   For Position = 1 To Len(.FixedInput)
-      Character = Mid$(.FixedInput, Position, 1)
-      If Character = NOT_FIXED Then
-         FixedMask = FixedMask & Mid$(.Mask, Position, 1)
-      Else
-         FixedMask = FixedMask & Character
-      End If
-   Next Position
-End With
-
-EndRoutine:
-   GenerateFixedMask = FixedMask
+EindeProcedure:
+   ExporteerResultaat = Not ExportAfgebroken
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then
+      ExportAfgebroken = True
+      Resume EindeProcedure
+   End If
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+'Deze procedure zet de opgegeven fouten lijst om naar tekst.
+Public Function FoutenLijstTekst(Lijst As Adodb.Errors) As String
+On Error GoTo Fout
+Dim Fout As Adodb.Error
+Dim Tekst As String
+
+   Tekst = "Er "
+   If Lijst.Count = 1 Then Tekst = Tekst & "is 1 fout " Else Tekst = Tekst & "zijn " & CStr(Lijst.Count) & " fouten"
+   Tekst = Tekst & " opgetreden tijdens het uitvoeren van de query:" & vbCrLf
+   Tekst = Tekst & VulAan("Native", 11)
+   Tekst = Tekst & VulAan("Code", 11)
+   Tekst = Tekst & VulAan("Bron", 36)
+   Tekst = Tekst & VulAan("SQL status", 11)
+   Tekst = Tekst & "Omschrijving" & vbCrLf
+   For Each Fout In Lijst
+      With Fout
+         Tekst = Tekst & VulAan(CStr(.NativeError), 10, LinksAanvullen:=True) & " "
+         Tekst = Tekst & VulAan(CStr(.Number), 10, LinksAanvullen:=True) & " "
+         Tekst = Tekst & VulAan(.Source, 35) & " "
+         Tekst = Tekst & VulAan(.SqlState, 10, LinksAanvullen:=True) & " "
+         Tekst = Tekst & .Description & vbCrLf
+      End With
+   Next Fout
+
+EindeProcedure:
+   FoutenLijstTekst = Tekst
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure handles any errors that occur.
-Public Function HandleError(Optional DoNotAskForChoice As Boolean = True, Optional TypePath As String = vbNullString, Optional Path As String = vbNullString, Optional ExtraInformation As String = vbNullString) As Long
-Dim ErrorCode As Long
-Dim ErrorDescription As String
-Dim Message As String
-Dim Source As String
-Static Choice As Long
-   
-   Source = Err.Source
-   ErrorCode = Err.Number
-   ErrorDescription = Err.Description
+
+'Deze procedure handelt eventuele fouten af.
+Public Function HandelFoutAf(Optional VraagVorigeKeuzeOp As Boolean = True, Optional TypePad As String = vbNullString, Optional Pad As String = vbNullString, Optional ExtraInformatie As String = vbNullString) As Long
+Dim Bericht As String
+Dim Bron As String
+Dim FoutCode As Long
+Dim FoutOmschrijving As String
+Static Keuze As Long
+
+   Bron = Err.Source
+   FoutCode = Err.Number
+   FoutOmschrijving = Err.Description
    Err.Clear
 
    On Error Resume Next
 
-   If Not DoNotAskForChoice Then
-      Message = FormatErrorDescription(ErrorDescription) & vbCr
-      Message = Message & "Error code: " & CStr(ErrorCode)
-      If Not Source = vbNullString Then Message = Message & vbCr & "Source: " & Source
-      If Not (TypePath = vbNullString Or Path = vbNullString) Then Message = Message & vbCr & TypePath & FileSystemO().GetAbsolutePathName(Path)
-      If Not ExtraInformation = vbNullString Then Message = Message & vbCr & ExtraInformation
+   If Not VraagVorigeKeuzeOp Then
+      Bericht = MaakFoutOmschrijvingOp(FoutOmschrijving) & vbCr
+      Bericht = Bericht & "Foutcode: " & CStr(FoutCode)
+      If Not Bron = vbNullString Then Bericht = Bericht & vbCr & "Bron: " & Bron
+      If Not (TypePad = vbNullString Or Pad = vbNullString) Then Bericht = Bericht & vbCr & TypePad & BestandsSysteem().GetAbsolutePathName(Pad)
+      If Not ExtraInformatie = vbNullString Then Bericht = Bericht & vbCr & ExtraInformatie
 
-      Choice = MsgBox(Message, vbExclamation Or vbAbortRetryIgnore Or vbDefaultButton2)
+      Keuze = MsgBox(Bericht, vbExclamation Or vbAbortRetryIgnore Or vbDefaultButton2)
    End If
 
-   HandleError = Choice
+   HandelFoutAf = Keuze
 
-   If Choice = vbAbort Then End
+   If Keuze = vbAbort Then End
 End Function
+'Deze procedure stuurt de instellingen voor dit programma terug.
+Public Function Instellingen(Optional InstellingenPad As String = vbNullString) As InstellingenDefinitie
+On Error GoTo Fout
+Dim Bericht As String
+Static ProgrammaInstellingen As InstellingenDefinitie
 
-'This procedure indicates whether the interactive batch mode is active.
-Public Function InteractiveBatchModeActive() As Boolean
-On Error GoTo ErrorTrap
-EndRoutine:
-   InteractiveBatchModeActive = Settings().BatchInteractive And BatchModeActive()
+   If Not InstellingenPad = vbNullString Then
+      If BestandsSysteem().FileExists(InstellingenPad) Then
+         ProgrammaInstellingen = LaadInstellingen(InstellingenPad)
+      Else
+         Bericht = "Kan het instellingenbestand niet vinden." & vbCr
+         Bericht = Bericht & "Instellingenbestand: " & InstellingenPad & vbCr
+         Bericht = Bericht & "Dit bestand genereren?" & vbCr
+         Bericht = Bericht & "Huidig pad: " & CurDir$()
+         If MsgBox(Bericht, vbQuestion Or vbYesNo Or vbDefaultButton2) = vbYes Then
+            BewaarInstellingen InstellingenPad, StandaardInstellingen(), "De standaardinstellingen zijn weggeschreven naar:"
+            ProgrammaInstellingen = LaadInstellingen(InstellingenPad)
+         End If
+      End If
+   End If
+
+EindeProcedure:
+   Instellingen = ProgrammaInstellingen
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure manages the interactive batch parameters.
-Private Function InteractiveBatchParameters(Optional Index As Long = 0, Optional NewParameter As Variant, Optional Remove As Boolean = False) As String
-On Error GoTo ErrorTrap
+'Deze procedure toont instellingsbestand gerelateerde foutmeldingen.
+Private Function InstellingenFout(Bericht As String, Optional InstellingenPad As String = vbNullString, Optional Sectie As String = vbNullString, Optional Regel As String = vbNullString, Optional Fataal As Boolean = False) As Long
+On Error GoTo Fout
+Dim Keuze As Long
+Dim Stijl As Long
+
+   If Not Sectie = vbNullString Then Bericht = Bericht & vbCr & "Sectie: " & Sectie
+   If Not Regel = vbNullString Then Bericht = Bericht & vbCr & "Regel: " & """" & Regel & """"
+   If Not InstellingenPad = vbNullString Then Bericht = Bericht & vbCr & "Instellingenbestand: " & InstellingenPad
+
+   Stijl = vbExclamation
+   If Not Fataal Then Stijl = Stijl Or vbOKCancel Or vbDefaultButton1
+   Keuze = MsgBox(Bericht, Stijl)
+
+EindeProcedure:
+   InstellingenFout = Keuze
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure geeft aan of een interactieve batch moet worden afgebroken.
+Public Function InteractieveBatchAfbreken(Optional BatchAfbreken As Variant) As Boolean
+On Error GoTo Fout
+Static Afbreken As Boolean
+
+   If Not IsMissing(BatchAfbreken) Then Afbreken = CBool(BatchAfbreken)
+
+EindeProcedure:
+   InteractieveBatchAfbreken = Afbreken
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure geeft aan of de interactieve batchmodus actief is.
+Public Function InteractieveBatchModusActief() As Boolean
+On Error GoTo Fout
+EindeProcedure:
+   InteractieveBatchModusActief = Instellingen().BatchInteractief And BatchModusActief()
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure beheert de interactieve batch parameters.
+Private Function InteractieveBatchParameters(Optional Index As Long = 0, Optional NieuweParameter As Variant, Optional Verwijderen As Boolean = False) As String
+On Error GoTo Fout
 Static Parameters As New Collection
-   
-   If Not IsMissing(NewParameter) Then
-      Parameters.Add CStr(NewParameter)
-   ElseIf Remove Then
+
+   If Not IsMissing(NieuweParameter) Then
+      Parameters.Add CStr(NieuweParameter)
+   ElseIf Verwijderen Then
       Set Parameters = New Collection
    End If
-   
-EndRoutine:
+
+EindeProcedure:
    If Parameters.Count = 0 Then
-      InteractiveBatchParameters = vbNullString
+      InteractieveBatchParameters = vbNullString
    Else
-      InteractiveBatchParameters = Parameters(Index + 1)
+      InteractieveBatchParameters = Parameters(Index + 1)
    End If
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
 
-'This procedure checks the query parameter input and returns the index of any incorrectly filled in inputbox and an error description.
-Private Function InvalidParameterInput(Optional ByRef ErrorInformation As String = vbNullString) As Long
-On Error GoTo ErrorTrap
-Dim FirstParameter As Long
-Dim Index As Long
-Dim InvalidBox As Long
-Dim LastParameter As Long
-Dim Length As Long
-Dim Position As Long
-
-   QueryParameters , , , FirstParameter, LastParameter
-   InvalidBox = NO_PARAMETER
-   
-   For Index = FirstParameter To LastParameter
-      With QueryParameters(, Index)
-         If .Mask = vbNullString Then
-            Length = Len(.Value)
-         Else
-            If .LengthIsVariable Then Length = ParameterInputLength(Index) Else Length = Len(.Mask)
-            For Position = 1 To Length
-               ErrorInformation = ParameterMaskCharacterValid(Mid$(.Value, Position, 1), Mid$(.Mask, Position, 1), Mid$(.FixedInput, Position, 1))
-               If Not ErrorInformation = vbNullString Then
-                  ErrorInformation = vbCr & """" & ErrorInformation & """." & vbCr & "Character position: " & CStr(Position)
-                  InvalidBox = Index
-                  Exit For
-               End If
-            Next Position
-         End If
-
-         If Not InvalidBox = NO_PARAMETER Then Exit For
-         QueryParameters , Index, Left$(.Value, Length)
-      End With
-   Next Index
-   
-   If Not InvalidBox = NO_PARAMETER Then
-      For Index = FirstParameter To LastParameter
-         QueryParameters , Index, vbNullString
-      Next Index
-   End If
-   
-EndRoutine:
-   InvalidParameterInput = InvalidBox
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procedure indicates whether the specified datatype should be left aligned.
-Private Function IsLeftAligned(DataType As Long) As Boolean
-On Error GoTo ErrorTrap
-Dim LeftAligned As Boolean
+'Deze procedure geeft aan of de opgegeven regel een instellingen sectie naam bevat.
+Private Function IsInstellingsSectie(Regel As String) As Boolean
+On Error GoTo Fout
+EindeProcedure:
+   IsInstellingsSectie = (Left$(Trim$(Regel), 1) = SECTIE_NAAM_BEGIN And Right$(Trim$(Regel), 1) = SECTIE_NAAM_EINDE)
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+
+'Deze procedure geeft aan of het opgegeven datatype links uitgelijnd moet worden.
+Private Function IsLinksUitgelijnd(DataType As Long) As Boolean
+On Error GoTo Fout
+Dim LinksUitgelijnd As Boolean
 Dim TypeIndex As Long
 
-   LeftAligned = False
-   For TypeIndex = LBound(LeftAlignedDataTypes()) To UBound(LeftAlignedDataTypes())
-      If DataType = LeftAlignedDataTypes(TypeIndex) Then
-         LeftAligned = True
+   LinksUitgelijnd = False
+   For TypeIndex = LBound(LinksUitgelijndeDataTypes()) To UBound(LinksUitgelijndeDataTypes())
+      If DataType = LinksUitgelijndeDataTypes(TypeIndex) Then
+         LinksUitgelijnd = True
          Exit For
       End If
    Next TypeIndex
-EndRoutine:
-   IsLeftAligned = LeftAligned
+EindeProcedure:
+   IsLinksUitgelijnd = LinksUitgelijnd
    Exit Function
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-'This procedure indicates whether the specified line of text contains a settings section name.
-Private Function IsSettingsSection(Line As String) As Boolean
-On Error GoTo ErrorTrap
-EndRoutine:
-   IsSettingsSection = (Left$(Trim$(Line), 1) = SECTION_NAME_START And Right$(Trim$(Line), 1) = SECTION_NAME_END)
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure adds the specified item if it does not yet appear on the specified list.
-Private Function ItemIsUnique(ByRef List As Collection, Optional Item As Variant, Optional ResetList As Boolean = False) As Boolean
-On Error GoTo ErrorTrap
+'Deze procedure voegt het opgegeven item toe aan de opgegeven lijst indien deze nog niet voorkomt.
+Private Function ItemIsUniek(ByRef Lijst As Collection, Optional Item As Variant, Optional ResetLijst As Boolean = False) As Boolean
+On Error GoTo Fout
 Dim Index As Long
-Dim Unique As Boolean
+Dim Uniek As Boolean
 
-   Unique = True
+   Uniek = True
 
-   If ResetList Then
-      Set List = New Collection
+   If ResetLijst Then
+      Set Lijst = New Collection
    ElseIf Not IsMissing(Item) Then
-      For Index = 1 To List.Count
-         If List(Index) = Item Then
-            Unique = False
+      For Index = 1 To Lijst.Count
+         If Lijst(Index) = Item Then
+            Uniek = False
             Exit For
          End If
       Next Index
 
-      If Unique Then List.Add Item
+      If Uniek Then Lijst.Add Item
    End If
 
-EndRoutine:
-   ItemIsUnique = Unique
+EindeProcedure:
+   ItemIsUniek = Uniek
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure returns a list of database datatypes that are left aligned.
-Private Function LeftAlignedDataTypes() As Variant
-On Error GoTo ErrorTrap
-EndRoutine:
-   LeftAlignedDataTypes = Array(adBSTR, adChar, adDBDate, adDBTime, adDBTimeStamp, adLongVarChar, adLongVarWChar, adVarChar, adVarWChar, adWChar)
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
+'Deze procedure laadt de instellingen voor dit programma.
+Private Function LaadInstellingen(InstellingenPad As String) As InstellingenDefinitie
+On Error GoTo Fout
+Dim Afbreken As Boolean
+Dim BestandsHandle As Long
+Dim ParameterNaam As String
+Dim ProgrammaInstellingen As InstellingenDefinitie
+Dim RecensteGeldigeSectie As String
+Dim Regel As String
+Dim Sectie As String
+Dim VerbindingsInformatie As String
+Dim VerwerkteParameters As New Collection
+Dim VerwerkteSecties As New Collection
 
+   Afbreken = False
+   ItemIsUniek VerwerkteParameters, , ResetLijst:=True
+   ItemIsUniek VerwerkteSecties, , ResetLijst:=True
+   ProgrammaInstellingen = StandaardInstellingen()
+   RecensteGeldigeSectie = vbNullString
+   Sectie = vbNullString
 
-'This procedure loads this program's settings.
-Private Function LoadSettings(SettingsPath As String) As SettingsStructure
-On Error GoTo ErrorTrap
-Dim Abort As Boolean
-Dim ConnectionInformation As String
-Dim FileHandle As Long
-Dim Line As String
-Dim MostRecentValidSection As String
-Dim ParameterName As String
-Dim ProcessedParameters As New Collection
-Dim ProcessedSections As New Collection
-Dim ProgramSettings As SettingsStructure
-Dim Section As String
+   With ProgrammaInstellingen
+      .Bestand = InstellingenPad
+      BestandsHandle = FreeFile()
+      Open .Bestand For Input Lock Read Write As BestandsHandle
+         Do Until EOF(BestandsHandle) Or Afbreken
+            Line Input #BestandsHandle, Regel
 
-   Abort = False
-   ItemIsUnique ProcessedParameters, , ResetList:=True
-   ItemIsUnique ProcessedSections, , ResetList:=True
-   ProgramSettings = DefaultSettings()
-   MostRecentValidSection = vbNullString
-   Section = vbNullString
-   
-   With ProgramSettings
-      .FileName = SettingsPath
-      FileHandle = FreeFile()
-      Open .FileName For Input Lock Read Write As FileHandle
-         Do Until EOF(FileHandle) Or Abort
-            Line Input #FileHandle, Line
-            
-            If Not Left$(Trim$(Line), 1) = COMMENT_CHARACTER Then
-               If IsSettingsSection(Line) Then
-                  Line = Trim$(Line)
-                  MostRecentValidSection = Section
-                  Section = UCase$(Mid$(Line, Len(SECTION_NAME_START) + 1, Len(Line) - (Len(SECTION_NAME_START) + Len(SECTION_NAME_END))))
-                  If Not ItemIsUnique(ProcessedSections, Section) Then
-                     If SettingsError("Multiple instances of the same section have been found.", SettingsPath, Section, Line) = vbCancel Then Abort = True
+            If Not Left$(Trim$(Regel), 1) = COMMENTAAR_TEKEN Then
+               If IsInstellingsSectie(Regel) Then
+                  Regel = Trim$(Regel)
+                  RecensteGeldigeSectie = Sectie
+                  Sectie = UCase$(Mid$(Regel, Len(SECTIE_NAAM_BEGIN) + 1, Len(Regel) - (Len(SECTIE_NAAM_BEGIN) + Len(SECTIE_NAAM_EINDE))))
+                  If Not ItemIsUniek(VerwerkteSecties, Sectie) Then
+                     If InstellingenFout("Sectie is meerdere keren aanwezig.", InstellingenPad, Sectie, Regel) = vbCancel Then Afbreken = True
                   End If
-                  ItemIsUnique ProcessedParameters, , ResetList:=True
+                  ItemIsUniek VerwerkteParameters, , ResetLijst:=True
                Else
-                  Select Case Section
-                     Case "BATCH", "EXPORT", "PREVIEW", "QUERY"
-                        If Not Trim$(Line) = vbNullString Then
-                           ReadParameter Line, ParameterName
-                           If Not ItemIsUnique(ProcessedParameters, ParameterName) Then
-                              If SettingsError("Multiple instances of the parameter section have been found.", SettingsPath, Section, Line) = vbCancel Then Abort = True
+                  Select Case Sectie
+                     Case "BATCH", "EXPORT", "QUERY", "VOORBEELD"
+                        If Not Trim$(Regel) = vbNullString Then
+                           LeesParameter Regel, ParameterNaam
+                           If Not ItemIsUniek(VerwerkteParameters, ParameterNaam) Then
+                              If InstellingenFout("Parameter is meerdere keren aanwezig.", InstellingenPad, Sectie, Regel) = vbCancel Then Afbreken = True
                            End If
                         End If
                   End Select
                End If
 
-               Select Case Section
+               Select Case Sectie
                   Case "BATCH"
-                     If Not (IsSettingsSection(Line) Or Trim$(Line) = vbNullString) Then
-                        If Not ProcessBatchSettings(Line, Section, ProgramSettings) Then Abort = True
+                     If Not (IsInstellingsSectie(Regel) Or Trim$(Regel) = vbNullString) Then
+                        If Not VerwerkBatchInstellingen(Regel, Sectie, ProgrammaInstellingen) Then Afbreken = True
                      End If
-                  Case "CONNECTION"
-                     If Not (IsSettingsSection(Line) Or Trim$(Line) = vbNullString) Then .ConnectionInformation = .ConnectionInformation & Trim$(Line)
-                  Case "EMAILTEXT"
-                     If Not IsSettingsSection(Line) Then .EMailText = .EMailText & Line & vbCrLf
+                  Case "EMAILTEKST"
+                     If Not IsInstellingsSectie(Regel) Then .EMailTekst = .EMailTekst & Regel & vbCrLf
                   Case "EXPORT"
-                     If Not (IsSettingsSection(Line) Or Trim$(Line) = vbNullString) Then
-                        If Not ProcessExportSettings(Line, Section, ProgramSettings) Then Abort = True
-                     End If
-                  Case "PREVIEW"
-                     If Not (IsSettingsSection(Line) Or Trim$(Line) = vbNullString) Then
-                       If Not ProcessPreviewSettings(Line, Section, ProgramSettings) Then Abort = True
+                     If Not (IsInstellingsSectie(Regel) Or Trim$(Regel) = vbNullString) Then
+                        If Not VerwerkExportInstellingen(Regel, Sectie, ProgrammaInstellingen) Then Afbreken = True
                      End If
                   Case "QUERY"
-                     If Not (IsSettingsSection(Line) Or Trim$(Line) = vbNullString) Then
-                       If Not ProcessQuerySettings(Line, Section, ProgramSettings) Then Abort = True
+                     If Not (IsInstellingsSectie(Regel) Or Trim$(Regel) = vbNullString) Then
+                        If Not VerwerkQueryInstellingen(Regel, Sectie, ProgrammaInstellingen) Then Afbreken = True
+                     End If
+                  Case "VERBINDING"
+                     If Not (IsInstellingsSectie(Regel) Or Trim$(Regel) = vbNullString) Then .VerbindingsInformatie = .VerbindingsInformatie & Trim$(Regel)
+                  Case "VOORBEELD"
+                     If Not (IsInstellingsSectie(Regel) Or Trim$(Regel) = vbNullString) Then
+                        If Not VerwerkVoorbeeldInstellingen(Regel, Sectie, ProgrammaInstellingen) Then Afbreken = True
                      End If
                   Case Else
-                     If Not Trim$(Line) = vbNullString Then
-                        If IsSettingsSection(Line) Then
-                           Section = MostRecentValidSection
-                           If SettingsError("Unrecognized section.", SettingsPath, Section, Line) = vbCancel Then Abort = True
+                     If Not Trim$(Regel) = vbNullString Then
+                        If IsInstellingsSectie(Regel) Then
+                           Sectie = RecensteGeldigeSectie
+                           If InstellingenFout("Niet herkende sectie.", InstellingenPad, Sectie, Regel) = vbCancel Then Afbreken = True
                         Else
-                           If SettingsError("Unrecognized parameter.", SettingsPath, Section, Line) = vbCancel Then Abort = True
+                           If InstellingenFout("Niet herkende parameter.", InstellingenPad, Sectie, Regel) = vbCancel Then Afbreken = True
                         End If
                      End If
                End Select
             End If
          Loop
-      Close FileHandle
-
-      If Trim$(.ConnectionInformation) = vbNullString And Not Abort Then
-         ConnectionInformation = Trim$(RequestConnectionInformation())
-         If Not ConnectionInformation = vbNullString Then
-            .ConnectionInformation = ConnectionInformation
-            SaveSettings SettingsPath, ProgramSettings, "The settings have been written to:"
+      Close BestandsHandle
+      
+      If Trim$(.VerbindingsInformatie) = vbNullString And Not Afbreken Then
+         VerbindingsInformatie = Trim$(VraagVerbindingsInformatie())
+         If Not VerbindingsInformatie = vbNullString Then
+            .VerbindingsInformatie = VerbindingsInformatie
+            BewaarInstellingen InstellingenPad, ProgrammaInstellingen, "De instellingen zijn weggeschreven naar:"
          End If
       End If
 
-      .ConnectionInformation = FormatConnectionInformation(.ConnectionInformation)
+      .VerbindingsInformatie = MaakVerbindingsInformatieOp(.VerbindingsInformatie)
    End With
 
-EndRoutine:
-   Close FileHandle
-     
-   LoadSettings = ProgramSettings
+EindeProcedure:
+   Close BestandsHandle
+
+   LaadInstellingen = ProgrammaInstellingen
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Settings file: ", Path:=SettingsPath) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Instellingenbestand: ", Pad:=InstellingenPad) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
-'This procedure is executed when this program is started.
+'Deze procedure stuurt de waarde en de naam van een instellingen parameter in de opgegeven regel terug.
+Private Function LeesParameter(Regel As String, ByRef ParameterNaam As String) As String
+On Error GoTo Fout
+Dim Positie As Long
+Dim Waarde As String
+
+   ParameterNaam = vbNullString
+   Waarde = vbNullString
+   Positie = InStr(Regel, WAARDE_TEKEN)
+   If Positie > 0 Then
+      ParameterNaam = LCase$(Trim$(Left$(Regel, Positie - 1)))
+      Waarde = Trim$(Mid$(Regel, Positie + 1))
+   End If
+
+EindeProcedure:
+   LeesParameter = Waarde
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure stuurt een lijst van databasedatatypes die linksuitgelijnd worden terug.
+Private Function LinksUitgelijndeDataTypes() As Variant
+On Error GoTo Fout
+EindeProcedure:
+   LinksUitgelijndeDataTypes = Array(adBSTR, adChar, adDBDate, adDBTime, adDBTimeStamp, adLongVarChar, adLongVarWChar, adVarChar, adVarWChar, adWChar)
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+
+'Deze procedure maakt de opgegeven fout omschrijving op.
+Private Function MaakFoutOmschrijvingOp(FoutOmschrijving As String) As String
+On Error Resume Next
+Dim Omschrijving As String
+
+   Omschrijving = Trim$(FoutOmschrijving)
+   Do
+      Select Case Right$(Omschrijving, 1)
+         Case vbCr, vbLf
+            Omschrijving = Trim$(Left$(Omschrijving, Len(Omschrijving) - 1))
+         Case Else
+            Exit Do
+      End Select
+   Loop
+   If Not Right$(Omschrijving, 1) = "." Then Omschrijving = Omschrijving & "."
+
+MaakFoutOmschrijvingOp = Omschrijving
+End Function
+
+'Deze procedure controleert de opgegeven verbindingsinformatie en maakt deze op.
+Private Function MaakVerbindingsInformatieOp(VerbindingsInformatie As String) As String
+On Error GoTo Fout
+Dim HuidigStringTeken As String
+Dim OpgemaakteVerbindingsInformatie As String
+Dim Parameter As String
+Dim ParameterBegin As Long
+Dim ParameterNaam As String
+Dim ParameterNamen As Collection
+Dim Positie As Long
+Dim Teken As String
+Dim Waarde As String
+
+   OpgemaakteVerbindingsInformatie = vbNullString
+  
+   If Not Trim$(VerbindingsInformatie) = vbNullString Then
+      HuidigStringTeken = vbNullString
+      ItemIsUniek ParameterNamen, , ResetLijst:=True
+      Positie = 1
+      ParameterBegin = Positie
+      If Not Right$(Trim$(VerbindingsInformatie), Len(VERBINDING_PARAMETER_TEKEN)) = VERBINDING_PARAMETER_TEKEN Then VerbindingsInformatie = VerbindingsInformatie & VERBINDING_PARAMETER_TEKEN
+      Do Until Positie > Len(VerbindingsInformatie)
+         Teken = Mid$(VerbindingsInformatie, Positie, 1)
+         If InStr(TEKENREEKS_TEKENS, Teken) > 0 Then
+            If HuidigStringTeken = vbNullString Then
+               HuidigStringTeken = Teken
+            ElseIf Teken = HuidigStringTeken Then
+               HuidigStringTeken = vbNullString
+            End If
+         ElseIf Teken = VERBINDING_PARAMETER_TEKEN Then
+            If HuidigStringTeken = vbNullString Then
+               Parameter = Mid$(VerbindingsInformatie, ParameterBegin, Positie - ParameterBegin)
+
+               If InStr(Parameter, WAARDE_TEKEN) = 0 Then
+                  OpgemaakteVerbindingsInformatie = vbNullString
+                  MsgBox "Ongeldige parameter aanwezig in verbindingsinformatie: """ & Parameter & """. Verwacht teken: " & WAARDE_TEKEN, vbExclamation
+                  Exit Do
+               End If
+
+               Waarde = LeesParameter(Parameter, ParameterNaam)
+
+               If Not ItemIsUniek(ParameterNamen, ParameterNaam) Then
+                  OpgemaakteVerbindingsInformatie = vbNullString
+                  MsgBox "Parameter meerdere malen aanwezig in verbindingsinformatie: """ & Parameter & """.", vbExclamation
+                  Exit Do
+               End If
+               ParameterBegin = Positie + 1
+
+               OpgemaakteVerbindingsInformatie = OpgemaakteVerbindingsInformatie & ParameterNaam & WAARDE_TEKEN & Trim$(Waarde) & VERBINDING_PARAMETER_TEKEN
+            End If
+         End If
+   
+         Positie = Positie + 1
+      Loop
+   
+      If Not HuidigStringTeken = vbNullString Then
+         OpgemaakteVerbindingsInformatie = vbNullString
+         MsgBox "Niet afgesloten tekenreekswaarde in verbindingsgegevens. Verwacht teken: " & HuidigStringTeken, vbExclamation
+      End If
+   End If
+
+EindeProcedure:
+   MaakVerbindingsInformatieOp = OpgemaakteVerbindingsInformatie
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+
+
+
+'Deze procedure wordt uitgevoerd wanneer het programma wordt gestart.
 Private Sub Main()
-On Error GoTo ErrorTrap
-Dim SettingsPath As String
-   CheckForAPIError SetCurrentDirectoryA(Left$(App.Path, InStr(App.Path, ":")))
+On Error GoTo Fout
+Dim InstellingenPad As String
+   ControleerOpAPIFout SetCurrentDirectoryA(Left$(App.Path, InStr(App.Path, ":")))
    ChDir App.Path
 
-   With CommandLineArguments(Command$())
-      If .Processed Then
-         If Left$(Trim$(.SettingsPath), Len(ARGUMENT_CHARACTER)) = ARGUMENT_CHARACTER Then
-            SettingsPath = Unquote(Mid$(Trim$(.SettingsPath), Len(ARGUMENT_CHARACTER) + 1))
-            If SettingsPath = vbNullString Then
-               MsgBox "Cannot save the settings. No target file specified.", vbExclamation
+   With OpdrachtRegelParameters(Command$())
+      If .Verwerkt Then
+         If Left$(Trim$(.InstellingenPad), Len(PARAMETER_TEKEN)) = PARAMETER_TEKEN Then
+            InstellingenPad = VerwijderAanhalingsTekens(Mid$(Trim$(.InstellingenPad), Len(PARAMETER_TEKEN) + 1))
+            If InstellingenPad = vbNullString Then
+               MsgBox "Kan de instellingen niet bewaren. Geen doel bestand opgegeven.", vbExclamation
             Else
-               SaveSettings SettingsPath, DefaultSettings(), "The default settings have been written to:"
+               BewaarInstellingen InstellingenPad, StandaardInstellingen(), "De standaardinstellingen zijn weggeschreven naar:"
             End If
-         ElseIf Not .SessionPath = vbNullString Then
-            SessionParameters , , Remove:=True
-            ProcessSessionList .SessionPath
+         ElseIf Not .SessiesPad = vbNullString Then
+            SessieParameters , , Verwijderen:=True
+            VerwerkSessieLijst .SessiesPad
          Else
-            SessionParameters , , Remove:=True
-            ExecuteSession Command$()
+            SessieParameters , , Verwijderen:=True
+            VoerSessieUit Command$()
          End If
       End If
    End With
 
-EndRoutine:
-   Connection , CloseConnection:=True
-   CloseAllWindows
+EindeProcedure:
+   Verbinding , VerbindingSluiten:=True
+   SluitAlleVensters
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
+'Deze procedure controleert de queryparameter invoer en stuurt eventueel de index van een onjuist ingevuld veld en een fout omschrijving terug.
+Private Function OngeldigeParameterInvoer(Optional ByRef FoutInformatie As String = vbNullString) As Long
+On Error GoTo Fout
+Dim EersteParameter As Long
+Dim Index As Long
+Dim LaatsteParameter As Long
+Dim Lengte As Long
+Dim OngeldigVeld As Long
+Dim Positie As Long
 
-'This procedure checks whether the specified parameter's input mask contains invalid characters.
-Private Function MaskValid(Index As Long) As Boolean
-On Error GoTo ErrorTrap
-Dim Character As String
-Dim IsValid As Boolean
-Dim FixedInput As String
-Dim Mask As String
-Dim Position As Long
+   QueryParameters , , , EersteParameter, LaatsteParameter
+   OngeldigVeld = GEEN_PARAMETER
 
-   IsValid = True
-   FixedInput = QueryParameters(, Index).FixedInput
-   Mask = QueryParameters(, Index).Mask
-   For Position = 1 To Len(Mask)
-      Character = Mid$(Mask, Position, 1)
-      If Character = MASK_FIXED Then
-         If Mid$(FixedInput, Position, 1) = NOT_FIXED Then
-            ParameterSymbolError "Fixed character indicated in mask but not in fixed characters at: #" & CStr(Position) & ".", Index
-            IsValid = False
-            Exit For
+   For Index = EersteParameter To LaatsteParameter
+      With QueryParameters(, Index)
+         If .Masker = vbNullString Then
+            Lengte = Len(.Invoer)
+         Else
+            If .LengteIsVariabel Then Lengte = ParameterInvoerLengte(Index) Else Lengte = Len(.Masker)
+            For Positie = 1 To Lengte
+               FoutInformatie = ParameterMaskerTekenGeldig(Mid$(.Invoer, Positie, 1), Mid$(.Masker, Positie, 1))
+               If Not FoutInformatie = vbNullString Then
+                  FoutInformatie = vbCr & """" & FoutInformatie & """." & vbCr & "Teken positie: " & CStr(Positie)
+                  OngeldigVeld = Index
+                  Exit For
+               End If
+            Next Positie
          End If
-      ElseIf Character = MASK_DIGIT Or Character = MASK_UPPERCASE Then
-         If Not Mid$(FixedInput, Position, 1) = NOT_FIXED Then
-            ParameterSymbolError "Fixed character indicated in fixed characters but not in mask at: #" & CStr(Position) & ".", Index
-            IsValid = False
-            Exit For
-         End If
-      Else
-         ParameterSymbolError "Invalid mask character """ & Character & """ at: #" & CStr(Position) & ".", Index
-         IsValid = False
-         Exit For
-      End If
-   Next Position
 
-EndRoutine:
-   MaskValid = IsValid
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
+         If Not OngeldigVeld = GEEN_PARAMETER Then Exit For
+         QueryParameters , Index, Left$(.Invoer, Lengte)
+      End With
+   Next Index
 
-
-
-'This procedure returns the number of items minus one for the specified dimension in the specified array.
-Private Function NumberOfItems(ArrayV As Variant, Optional Dimension As Long = 1) As Long
-On Error GoTo ErrorTrap
-Dim Count As Long
-
-   Count = UBound(ArrayV, Dimension) - LBound(ArrayV, Dimension)
-EndRoutine:
-   NumberOfItems = Count
-   Exit Function
-
-ErrorTrap:
-   Count = UNKNOWN_NUMBER
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-'This procedure pads the specified text with the number spaces specified.
-Private Function Pad(Text As String, Width As Long, Optional PadLeft As Boolean = False) As String
-On Error GoTo ErrorTrap
-Dim PaddedText As String
-
-   PaddedText = Text
-   If Len(PaddedText) > Width Then PaddedText = Left$(PaddedText, Width)
-   If PadLeft Then
-      PaddedText = Space$(Width - Len(PaddedText)) & PaddedText
-   Else
-      PaddedText = PaddedText & Space$(Width - Len(PaddedText))
+   If Not OngeldigVeld = GEEN_PARAMETER Then
+      For Index = EersteParameter To LaatsteParameter
+         QueryParameters , Index, vbNullString
+      Next Index
    End If
 
-EndRoutine:
-   Pad = PaddedText
+EindeProcedure:
+   OngeldigeParameterInvoer = OngeldigVeld
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
+'Deze procedure beheert de huidige sessie's opdrachtregelparameters.
+Public Function OpdrachtRegelParameters(Optional SessieParameters As String = vbNullString) As OpdrachtRegelParametersDefinitie
+On Error GoTo Fout
+Dim Bericht As String
+Dim Extensies As Collection
+Dim Parameter As Variant
+Dim Parameters() As String
+Dim Positie As Long
+Static HuidigeOpdrachtRegelParameters As OpdrachtRegelParametersDefinitie
 
-'This procedure returns the input's length for the specified query parameter.
-Private Function ParameterInputLength(Index As Long) As Long
-On Error GoTo ErrorTrap
-Dim Length As Long
-Dim Position As Long
+   With HuidigeOpdrachtRegelParameters
+      .Verwerkt = True
 
-   Length = 0
-   With QueryParameters(, Index)
-      For Position = 1 To Len(.Value)
-         If Not Mid$(.Value, Position, 1) = Mid$(.Mask, Position, 1) Then Length = Position
-      Next Position
+      If Not SessieParameters = vbNullString Then
+         ItemIsUniek Extensies, , ResetLijst:=True
+
+         Positie = InStr(SessieParameters, PARAMETER_TEKEN & PARAMETER_TEKEN)
+         If Positie > 0 Then
+            .InstellingenPad = Mid$(SessieParameters, Positie + Len(PARAMETER_TEKEN))
+         Else
+            Parameters = Split(SessieParameters, PARAMETER_TEKEN)
+
+            For Each Parameter In Parameters
+               If Not Trim$(Parameter) = vbNullString Then
+                  Parameter = VerwijderAanhalingsTekens(CStr(Parameter))
+   
+                  If ItemIsUniek(Extensies, "." & LCase$(BestandsSysteem().GetExtensionName(CStr(Parameter)))) Then
+                     Select Case "." & LCase$(BestandsSysteem().GetExtensionName(CStr(Parameter)))
+                        Case ".ini"
+                           .InstellingenPad = Parameter
+                        Case ".lst"
+                           .SessiesPad = Parameter
+                        Case ".txt"
+                           .QueryPad = Parameter
+                        Case Else
+                           If Not Trim$(Parameter) = vbNullString Then
+                              Bericht = "Niet herkende opdrachtregelparameter: """ & Parameter & """."
+                              If VerwerkSessieLijst() = vbNullString Then
+                                 MsgBox Bericht, vbExclamation
+                              Else
+                                 Bericht = Bericht & vbCr & "Sessielijst: """ & VerwerkSessieLijst() & """."
+                                 If MsgBox(Bericht, vbExclamation Or vbOKCancel) = vbCancel Then SessiesAfbreken NieuweSessiesAfbreken:=True
+                              End If
+                              .Verwerkt = False
+                           End If
+                     End Select
+                  Else
+                     Bericht = "Er kan maar een instellingenbestand en/of query tegelijk opgegeven worden."
+                     If Not VerwerkSessieLijst() = vbNullString Then Bericht = Bericht & vbCr & "Sessielijst: """ & VerwerkSessieLijst() & """."
+                     MsgBox Bericht, vbExclamation
+                     .Verwerkt = False
+                  End If
+               End If
+            Next Parameter
+         End If
+      End If
    End With
 
-EndRoutine:
-   ParameterInputLength = Length
+EindeProcedure:
+   OpdrachtRegelParameters = HuidigeOpdrachtRegelParameters
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure compares the specified character with the specified query parameter mask mask character.
-Public Function ParameterMaskCharacterValid(Character As String, MaskCharacter As String, FixedInputCharacter As String) As String
-On Error GoTo ErrorTrap
-Dim Result As String
-   
-   Result = vbNullString
-
-   If FixedInputCharacter = NOT_FIXED Then
-      Select Case MaskCharacter
-         Case MASK_UPPERCASE
-            If Not (Character >= "A" And Character <= "Z") Then Result = "Uppercase character expected."
-         Case MASK_DIGIT
-            If Not (Character >= "0" And Character <= "9") Then Result = "Number expected."
-      End Select
-   Else
-      If Not Character = FixedInputCharacter Then Result = "Fixed mask character """ & FixedInputCharacter & """ expected."
-   End If
-   
-EndRoutine:
-   ParameterMaskCharacterValid = Result
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-
-
-'This procedure checks whether the parameters specified by the user are valid and returns the result.
-Public Function ParametersValid(ParameterBoxes As Object) As Boolean
-On Error GoTo ErrorTrap
-Dim ErrorInformation As String
+'Deze procedure controleert de door de gebruiker ingevoerde parameters en stuurt het resultaat terug.
+Public Function ParametersGeldig(ParameterVelden As Object) As Boolean
+On Error GoTo Fout
+Dim FoutInformatie As String
+Dim Geldig As Boolean
 Dim Index As Long
-Dim Valid As Boolean
 
-   For Index = ParameterBoxes.LBound To ParameterBoxes.UBound
-      QueryParameters , Index, ParameterBoxes(Index).Text
+   For Index = ParameterVelden.LBound To ParameterVelden.UBound
+      QueryParameters , Index, ParameterVelden(Index).Text
    Next Index
-   
-   Index = InvalidParameterInput(ErrorInformation)
-   Valid = (Index = NO_PARAMETER)
-   
-   If Not Valid Then
-      With ParameterBoxes(Index)
+
+   Index = OngeldigeParameterInvoer(FoutInformatie)
+   Geldig = (Index = GEEN_PARAMETER)
+
+   If Not Geldig Then
+      With ParameterVelden(Index)
          If .Visible Then
-            ErrorInformation = "This input box has not been correctly or fully filled in:" & ErrorInformation
+            FoutInformatie = "Dit veld is niet volledig of onjuist ingevuld:" & FoutInformatie
          Else
-            ErrorInformation = "Invisible parameter #" & CStr(Index - ParameterBoxes.LBound) & "  has not been correctly or fully filled in:" & ErrorInformation
+            FoutInformatie = "Onzichtbare parameter #" & CStr(Index - ParameterVelden.LBound) & " is niet volledig of onjuist ingevuld:" & FoutInformatie
          End If
-         MsgBox ErrorInformation, vbExclamation
+         MsgBox FoutInformatie, vbExclamation
          If .Visible Then .SetFocus
       End With
    End If
-   
-EndRoutine:
-   ParametersValid = Valid
+
+EindeProcedure:
+   ParametersGeldig = Geldig
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure vergelijkt het opgegeven teken met het opgegeven queryparametermaskerteken.
+Public Function ParameterMaskerTekenGeldig(Teken As String, MaskerTeken As String) As String
+On Error GoTo Fout
+Dim Geldig As String
+
+   Geldig = vbNullString
+
+   Select Case MaskerTeken
+      Case MASKER_CIJFER
+         If Not (Teken >= "0" And Teken <= "9") Then Geldig = "Cijfer verwacht."
+      Case MASKER_HOOFDLETTER
+         If Not (Teken >= "A" And Teken <= "Z") Then Geldig = "Hoofdletter verwacht."
+      Case Else
+         If Not Teken = MaskerTeken Then Geldig = "Vast maskerteken """ & MaskerTeken & """ verwacht."
+   End Select
+
+EindeProcedure:
+   ParameterMaskerTekenGeldig = Geldig
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procedure displays parameter and/or symbol related error messages.
-Private Sub ParameterSymbolError(Message As String, Optional Index As Long = NO_PARAMETER)
-On Error GoTo ErrorTrap
-Dim FirstParameter As Long
+'Deze procedure stuurt de lengte van de invoer voor de opgegeven queryparameter terug.
+Private Function ParameterInvoerLengte(Index As Long) As Long
+On Error GoTo Fout
+Dim Lengte As Long
+Dim Positie As Long
 
-   QueryParameters , , , FirstParameter
+   Lengte = 0
+   With QueryParameters(, Index)
+      For Positie = 1 To Len(.Invoer)
+         If Not Mid$(.Invoer, Positie, 1) = Mid$(.Masker, Positie, 1) Then Lengte = Positie
+      Next Positie
+   End With
 
-   If Not Index = NO_PARAMETER Then
-      Message = Message & vbCr & "Parameter definition: #" & CStr((Index - FirstParameter) + 1)
+EindeProcedure:
+   ParameterInvoerLengte = Lengte
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+
+'Deze procedure toont parameter en/of symbool gerelateerde foutmeldingen.
+Private Sub ParameterSymboolFout(Bericht As String, Optional Index As Long = GEEN_PARAMETER)
+On Error GoTo Fout
+Dim EersteParameter As Long
+
+   QueryParameters , , , EersteParameter
+
+   If Not Index = GEEN_PARAMETER Then
+      Bericht = Bericht & vbCr & "Parameter definitie: #" & CStr((Index - EersteParameter) + 1)
       With QueryParameters(, Index)
-         If Not .ParameterName = vbNullString Then Message = Message & vbCr & "Name: """ & .ParameterName & """"
-         If Not .Value = vbNullString Then Message = Message & vbCr & "Input: """ & .Value & """"
-         If Not .DefaultValue = vbNullString Then Message = Message & vbCr & "Default value: """ & .DefaultValue & """"
-         If Not .Mask = vbNullString Then Message = Message & vbCr & "Mask: """ & .Mask & """"
-         If Not .FixedInput = vbNullString Then Message = Message & vbCr & "Fixed input: """ & .FixedInput & """"
+         If Not .ParameterNaam = vbNullString Then Bericht = Bericht & vbCr & "Naam: """ & .ParameterNaam & """"
+         If Not .Invoer = vbNullString Then Bericht = Bericht & vbCr & "Invoer: """ & .Invoer & """"
+         If Not .StandaardWaarde = vbNullString Then Bericht = Bericht & vbCr & "Standaardwaarde: """ & .StandaardWaarde & """"
+         If Not .Masker = vbNullString Then Bericht = Bericht & vbCr & "Masker: """ & .Masker & """"
       End With
    End If
-   If Not Query().Path = vbNullString Then Message = Message & vbCr & "Query: " & Query().Path
-   MsgBox Message, vbExclamation
-EndRoutine:
+   If Not Query().Pad = vbNullString Then Bericht = Bericht & vbCr & "Query: " & Query().Pad
+   MsgBox Bericht, vbExclamation
+EindeProcedure:
 Exit Sub
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
 
 
-
-'This procedure processes the batch settings.
-Private Function ProcessBatchSettings(Line As String, Section As String, ByRef BatchSettings As SettingsStructure) As Boolean
-On Error GoTo ErrorTrap
-Dim ParameterName As String
-Dim Processed As Boolean
-Dim Value As String
-
-   ParameterName = vbNullString
-   Processed = True
-   Value = ReadParameter(Line, ParameterName)
-   
-   With BatchSettings
-      Select Case ParameterName
-         Case "interactive"
-            .BatchInteractive = CBool(Value)
-         Case "querypath"
-            .BatchQueryPath = Value
-         Case "range"
-            .BatchRange = Value
-         Case Else
-            If SettingsError("Unrecognized parameter.", BatchSettings.FileName, Section, Line) = vbCancel Then Processed = False
-      End Select
-   End With
-EndRoutine:
-   ProcessBatchSettings = Processed
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Settings file: ", Path:=BatchSettings.FileName, ExtraInformation:="Section: " & Section & vbCr & "Line: " & Line) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure processes the export settings.
-Private Function ProcessExportSettings(Line As String, Section As String, ByRef ExportSettings As SettingsStructure) As Boolean
-On Error GoTo ErrorTrap
-Dim ParameterName As String
-Dim Processed As Boolean
-Dim Value As String
-   
-   ParameterName = vbNullString
-   Processed = True
-   Value = ReadParameter(Line, ParameterName)
-   
-   With ExportSettings
-      Select Case ParameterName
-         Case "autoopen"
-            .ExportAutoOpen = CBool(Value)
-         Case "autooverwrite"
-            .ExportAutoOverwrite = CBool(Value)
-         Case "autosend"
-            .ExportAutoSend = CBool(Value)
-         Case "ccrecipient"
-            .ExportCCRecipient = Value
-         Case "defaultpath"
-            .ExportDefaultPath = Value
-         Case "padcolumn"
-            .ExportPadColumn = CBool(Value)
-         Case "recipient"
-            .ExportRecipient = Value
-         Case "sender"
-            .ExportSender = Value
-         Case "subject"
-            .ExportSubject = Value
-         Case Else
-            If SettingsError("Unrecognized parameter.", ExportSettings.FileName, Section, Line) = vbCancel Then Processed = False
-      End Select
-   End With
-EndRoutine:
-   ProcessExportSettings = Processed
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Settings file: ", Path:=ExportSettings.FileName, ExtraInformation:="Section: " & Section & vbCr & "Line: " & Line) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure returns the connection information containing the specified logon information.
-Public Function ProcessLogonInformation(User As String, Password As String, ConnectionInformation As String) As String
-On Error GoTo ErrorTrap
-Dim LeftPart As String
-Dim Position As Long
-Dim ProcessedLogonInformation As String
-Dim RightPart As String
-
-   ProcessedLogonInformation = ConnectionInformation
-
-   Position = InStr(UCase$(ProcessedLogonInformation), USER_VARIABLE)
-   If Position > 0 Then
-      LeftPart = Left$(ProcessedLogonInformation, Position - 1)
-      RightPart = Mid$(ProcessedLogonInformation, Position + Len(USER_VARIABLE))
-      ProcessedLogonInformation = LeftPart & User & RightPart
-   End If
-
-   Position = InStr(UCase$(ProcessedLogonInformation), PASSWORD_VARIABLE)
-   If Position > 0 Then
-      LeftPart = Left$(ProcessedLogonInformation, Position - 1)
-      RightPart = Mid$(ProcessedLogonInformation, Position + Len(PASSWORD_VARIABLE))
-      ProcessedLogonInformation = LeftPart & Password & RightPart
-   End If
-   
-EndRoutine:
-   ProcessLogonInformation = ProcessedLogonInformation
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure processes the preview settings.
-Private Function ProcessPreviewSettings(Line As String, Section As String, ByRef PreviewSettings As SettingsStructure) As Boolean
-On Error GoTo ErrorTrap
-Dim ParameterName As String
-Dim Processed As Boolean
-Dim Value As String
-   
-   ParameterName = vbNullString
-   Processed = True
-   Value = ReadParameter(Line, ParameterName)
-   
-   With PreviewSettings
-      Select Case ParameterName
-         Case "columnwidth"
-            .PreviewColumnWidth = CLng(Value)
-         Case "rows"
-            .PreviewLines = CLng(Value)
-         Case Else
-            If SettingsError("Unrecognized parameter.", PreviewSettings.FileName, Section, Line) = vbCancel Then Processed = False
-      End Select
-   End With
-EndRoutine:
-   ProcessPreviewSettings = Processed
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Settings file: ", Path:=PreviewSettings.FileName, ExtraInformation:="Section: " & Section & vbCr & "Line: " & Line) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure processes the query settings.
-Private Function ProcessQuerySettings(Line As String, Section As String, ByRef QuerySettings As SettingsStructure) As Boolean
-On Error GoTo ErrorTrap
-Dim ParameterName As String
-Dim Processed As Boolean
-Dim Value As String
-
-   ParameterName = vbNullString
-   Processed = True
-   Value = ReadParameter(Line, ParameterName)
-   
-   With QuerySettings
-      Select Case ParameterName
-         Case "autoclose"
-            .QueryAutoClose = CBool(Value)
-         Case "autoexecute"
-            .QueryAutoExecute = CBool(Value)
-         Case "recordsets"
-            .QueryRecordSets = CBool(Value)
-         Case "timeout"
-            .QueryTimeout = CLng(Value)
-         Case Else
-            If SettingsError("Unrecognized parameter.", QuerySettings.FileName, Section, Line) = vbCancel Then Processed = False
-      End Select
-   End With
-EndRoutine:
-   ProcessQuerySettings = Processed
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Settings file: ", Path:=QuerySettings.FileName, ExtraInformation:="Section: " & Section & vbCr & "Line: " & Line) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure processes the specified session list.
-Public Function ProcessSessionList(Optional SessionListPath As String = vbNullString) As String
-On Error GoTo ErrorTrap
-Dim FileHandle As Long
-Dim SessionParameters As String
-Static CurrentSessionListPath As String
-
-   If Not SessionListPath = vbNullString Then
-      AbortSessions NewAbortSessions:=False
-      FileHandle = FreeFile()
-      CurrentSessionListPath = SessionListPath
-      Open CurrentSessionListPath For Input Lock Read Write As FileHandle
-         Do Until EOF(FileHandle) Or AbortSessions()
-            Line Input #FileHandle, SessionParameters
-            If Not Trim$(SessionParameters) = vbNullString Then ExecuteSession SessionParameters
-         Loop
-      Close FileHandle
-   End If
-
-EndRoutine:
-   ProcessSessionList = CurrentSessionListPath
-   Exit Function
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Session list: ", Path:=CurrentSessionListPath) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-
-'This procedure returns the value represented by the specified symbol.
-Private Function ProcessSymbol(Symbol As String) As String
-On Error GoTo ErrorTrap
-Dim IsNumber As Boolean
-Dim Message As String
-Dim SymbolArgument As String
-Dim Value As String
-
-   On Error GoTo IsNotANumber
-   IsNumber = CStr(CLng(Val(Symbol))) = Symbol
-   On Error GoTo ErrorTrap
-
-   If IsNumber Then
-      If CLng(Val(Symbol)) = 0 Then
-         Value = FileSystemO().GetBaseName(Query().Path)
-      Else
-         Value = QueryParameters(, CLng(Val(Symbol)) - 1).Value
-      End If
-   Else
-      SymbolArgument = Mid$(Symbol, 2)
-      Symbol = Left$(Symbol, 1)
-
-      Select Case Symbol
-         Case "D"
-            Value = Format$(Day(Date), "00") & Format$(Month(Date), "00") & CStr(Year(Date))
-         Case "b"
-            If CStr(CLng(Val(SymbolArgument))) = SymbolArgument Then Value = InteractiveBatchParameters(CLng(Val(SymbolArgument)))
-         Case "c"
-            If CStr(CLng(Val(SymbolArgument))) = SymbolArgument Then Value = ChrW$(CLng(Val(SymbolArgument)))
-         Case "d"
-            Value = Format$(Day(Date), "00")
-         Case "e"
-            Value = Environ$(SymbolArgument)
-         Case "m"
-            Value = Format$(Month(Date), "00")
-         Case "s"
-            If CStr(CLng(Val(SymbolArgument))) = SymbolArgument Then Value = SessionParameters(CLng(Val(SymbolArgument)))
-         Case "y"
-            Value = Format$(Year(Date), "0000")
-         Case Else
-            If Not Symbol = vbNullString Then ParameterSymbolError "Symbol """ & Symbol & """ is unknown. It will be ignored."
-      End Select
-   End If
-   
-EndRoutine:
-   ProcessSymbol = Value
-   Exit Function
-
-ErrorTrap:
-   Message = "Symbol """ & Symbol & """ has caused the following error: " & vbCr
-   Message = Message & Err.Description & "." & vbCr
-   Message = Message & "Error code: " & Err.Number
-   ParameterSymbolError Message
-   Resume EndRoutine
-
-IsNotANumber:
-   IsNumber = False
-   Resume Next
-End Function
-
-
-'This procedure returns this program's version.
-Public Function ProgramVersion() As String
-On Error GoTo ErrorTrap
-EndRoutine:
+'Deze procedure stuurt het versienummer van dit programma terug.
+Public Function ProgrammaVersie() As String
+On Error GoTo Fout
+EindeProcedure:
    With App
-      ProgramVersion = "v" & CStr(.Major) & "." & CStr(.Minor) & CStr(.Revision)
+      ProgrammaVersie = "v" & CStr(.Major) & "." & CStr(.Minor) & CStr(.Revision)
    End With
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure checks whether the specified parameter's properties contain invalid characters.
-Private Function PropertiesValid(Index As Long) As Boolean
-On Error GoTo ErrorTrap
-Dim Character As String
-Dim IsValid As Boolean
-Dim Position As Long
-Dim Properties As String
+'Deze procedure laadt de opgegeven query of stuurt een al geladen query terug.
+Public Function Query(Optional QueryPad As String = vbNullString) As QueryDefinitie
+On Error GoTo Fout
+Dim BestandsHandle As Long
+Static HuidigeQuery As QueryDefinitie
 
-   IsValid = True
-   Properties = QueryParameters(, Index).Properties
-   For Position = 1 To Len(Properties)
-      Character = Mid$(Properties, Position, 1)
-      If Not (Character = PROPERTY_HIDDEN Or Character = PROPERTY_VARIABLE_LENGTH) Then
-         ParameterSymbolError "Invalid property """ & Character & """ at: #" & CStr(Position) & ".", Index
-         IsValid = False
-         Exit For
-      End If
-   Next Position
+   With HuidigeQuery
+      .Geopend = False
 
-EndRoutine:
-   PropertiesValid = IsValid
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
+      If Not QueryPad = vbNullString Then
+         BestandsHandle = FreeFile()
+         Open QueryPad For Input Lock Read Write As BestandsHandle: Close BestandsHandle
 
+         BestandsHandle = FreeFile()
+         Open QueryPad For Binary Lock Read Write As BestandsHandle
+            .Code = Input$(LOF(BestandsHandle), BestandsHandle)
+         Close BestandsHandle
 
-
-
-'This procedure loads the specified query or returns a previously loaded query.
-Public Function Query(Optional QueryPath As String = vbNullString) As QueryStructure
-On Error GoTo ErrorTrap
-Dim FileHandle As Long
-Static CurrentQuery As QueryStructure
-
-   With CurrentQuery
-      .Opened = False
-   
-      If Not QueryPath = vbNullString Then
-         FileHandle = FreeFile()
-         Open QueryPath For Input Lock Read Write As FileHandle: Close FileHandle
-         
-         FileHandle = FreeFile()
-         Open QueryPath For Binary Lock Read Write As FileHandle
-            .Code = Input$(LOF(FileHandle), FileHandle)
-         Close FileHandle
-   
-         .Path = QueryPath
-         .Opened = True
+         .Pad = QueryPad
+         .Geopend = True
       End If
    End With
-   
-EndRoutine:
-   Query = CurrentQuery
+
+EindeProcedure:
+   Query = HuidigeQuery
    Exit Function
-   
-ErrorTrap:
-   CurrentQuery.Opened = False
-   
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Query path: ", Path:=QueryPath) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   HuidigeQuery.Geopend = False
+
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Query pad: ", Pad:=QueryPad) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure searches the specified query for parameter definitions or returns a parameter definition found earlier.
-Public Function QueryParameters(Optional QueryCode As String = vbNullString, Optional ParameterIndex As Long = 0, Optional Value As Variant, Optional ByRef FirstParameter As Long = 0, Optional ByRef LastParameter As Long = 0) As QueryParameterStructure
-On Error GoTo ErrorTrap
-Dim Definition As String
-Dim DefinitionEnd As Long
-Dim DefinitionStart As Long
-Dim Elements() As String
-Dim UnprocessedCode As String
-Static Parameters() As QueryParameterStructure
-  
-   If Not IsMissing(Value) Then
-      If Not CheckForAPIError(SafeArrayGetDim(Parameters)) = 0 Then Parameters(ParameterIndex).Value = CStr(Value)
+'Deze procedure doorzoekt de opgegeven query op parameterdefinities of stuurt een eerder gevonden parameterdefinitie terug.
+Public Function QueryParameters(Optional QueryCode As String = vbNullString, Optional ParameterIndex As Long = 0, Optional Invoer As Variant, Optional ByRef EersteParameter As Long = 0, Optional ByRef LaatsteParameter As Long = 0) As QueryParameterDefinitie
+On Error GoTo Fout
+Dim Definitie As String
+Dim DefinitieBegin As Long
+Dim DefinitieEinde As Long
+Dim Elementen() As String
+Dim OnverwerkteCode As String
+Static Parameters() As QueryParameterDefinitie
+
+   If Not IsMissing(Invoer) Then
+      If Not ControleerOpAPIFout(SafeArrayGetDim(Parameters)) = 0 Then Parameters(ParameterIndex).Invoer = CStr(Invoer)
    ElseIf Not QueryCode = vbNullString Then
       Erase Parameters()
 
-      UnprocessedCode = QueryCode
+      OnverwerkteCode = QueryCode
       Do
-         DefinitionStart = InStr(UnprocessedCode, DEFINITION_CHARACTERS)
-         If DefinitionStart > 0 Then
-            DefinitionEnd = InStr(DefinitionStart + Len(DEFINITION_CHARACTERS), UnprocessedCode, DEFINITION_CHARACTERS)
-            If DefinitionEnd > 0 Then
-               If CheckForAPIError(SafeArrayGetDim(Parameters())) = 0 Then
-                  ReDim Parameters(0 To 0) As QueryParameterStructure
+         DefinitieBegin = InStr(OnverwerkteCode, DEFINITIE_TEKENS)
+         If DefinitieBegin > 0 Then
+            DefinitieEinde = InStr(DefinitieBegin + Len(DEFINITIE_TEKENS), OnverwerkteCode, DEFINITIE_TEKENS)
+            If DefinitieEinde > 0 Then
+               If ControleerOpAPIFout(SafeArrayGetDim(Parameters())) = 0 Then
+                  ReDim Parameters(0 To 0) As QueryParameterDefinitie
                Else
-                  ReDim Preserve Parameters(LBound(Parameters()) To UBound(Parameters()) + 1) As QueryParameterStructure
+                  ReDim Preserve Parameters(LBound(Parameters()) To UBound(Parameters()) + 1) As QueryParameterDefinitie
                End If
 
-               Definition = Mid$(UnprocessedCode, DefinitionStart + Len(DEFINITION_CHARACTERS), (DefinitionEnd - DefinitionStart) - Len(DEFINITION_CHARACTERS))
-               UnprocessedCode = Mid$(UnprocessedCode, DefinitionEnd + Len(DEFINITION_CHARACTERS))
+               Definitie = Mid$(OnverwerkteCode, DefinitieBegin + Len(DEFINITIE_TEKENS), (DefinitieEinde - DefinitieBegin) - Len(DEFINITIE_TEKENS))
+               OnverwerkteCode = Mid$(OnverwerkteCode, DefinitieEinde + Len(DEFINITIE_TEKENS))
 
                With Parameters(UBound(Parameters()))
-                  .Length = Len(DEFINITION_CHARACTERS & Definition & DEFINITION_CHARACTERS)
-                  .Position = DefinitionStart
+                  .Lengte = Len(DEFINITIE_TEKENS & Definitie & DEFINITIE_TEKENS)
+                  .Positie = DefinitieBegin
 
-                  Elements = Split(Definition, ELEMENT_CHARACTER)
-                  If NumberOfItems(Elements) > Abs(CommentsElement - NameElement) Then ParameterSymbolError "To many elements, these will be ignored.", UBound(Parameters())
-                  ReDim Preserve Elements(NameElement To CommentsElement) As String
+                  Elementen = Split(Definitie, ELEMENT_TEKEN)
+                  If AantalItems(Elementen) > Abs(CommentaarElement - NaamElement) Then ParameterSymboolFout "Teveel elementen, deze worden genegeerd.", UBound(Parameters())
+                  ReDim Preserve Elementen(NaamElement To CommentaarElement) As String
 
-                  .ParameterName = Elements(NameElement)
+                  .ParameterNaam = Elementen(NaamElement)
 
-                  .Mask = Elements(MaskElement)
+                  .VeldIsZichtbaar = Not (.ParameterNaam = vbNullString)
 
-                  .FixedInput = Elements(FixedElement)
-                  If Not .Mask = vbNullString Then
-                     If .FixedInput = vbNullString Then
-                        .FixedInput = String$(Len(.Mask), NOT_FIXED)
-                     Else
-                        If Not Len(.FixedInput) = Len(.Mask) Then ParameterSymbolError ("The fixed input must be the same length as the mask. Any surplus characters will be removed."), UBound(Parameters())
-                     End If
-                  End If
+                  .Masker = Elementen(MaskerElement)
+                  .LengteIsVariabel = (Left$(.Masker, 1) = VARIABELE_LENGTE_TEKEN)
+                  If .LengteIsVariabel Then .Masker = Mid$(.Masker, 2)
 
-                  .DefaultValue = ReplaceSymbols(Elements(DefaultValueElement))
-                  If Not .Mask = vbNullString Then If Len(.DefaultValue) > Len(.Mask) Then ParameterSymbolError "The default value is longer than the mask. The surplus characters will be removed.", UBound(Parameters())
+                  .StandaardWaarde = VervangSymbolen(Elementen(StandaardWaardeElement))
+                  If Not .Masker = vbNullString Then If Len(.StandaardWaarde) > Len(.Masker) Then ParameterSymboolFout "De standaardwaarde is langer dan het masker. De overtollige tekens worden verwijderd.", UBound(Parameters())
 
-                  .Properties = Elements(PropertiesElement)
+                  .Commentaar = Elementen(CommentaarElement)
 
-                  .Comments = Elements(CommentsElement)
-                  .Value = .DefaultValue
-
-                  .FixedMask = GenerateFixedMask(UBound(Parameters()))
-                  .InputBoxIsVisible = Not (InStr(.Properties, PROPERTY_HIDDEN) > 0)
-                  .LengthIsVariable = (InStr(.Properties, PROPERTY_VARIABLE_LENGTH) > 0)
-
-                  MaskValid UBound(Parameters())
-                  PropertiesValid UBound(Parameters())
+                  .Invoer = .StandaardWaarde
                End With
+
             Else
-               ParameterSymbolError "No end of parameter definition marker. This definition will be ignored.", UBound(Parameters())
+               ParameterSymboolFout "Geen einde markering. Deze wordt genegeerd.", UBound(Parameters())
                Exit Do
             End If
          Else
@@ -2101,650 +1335,1268 @@ Static Parameters() As QueryParameterStructure
          End If
       Loop
    End If
-   
-EndRoutine:
-   FirstParameter = NO_PARAMETER
-   LastParameter = NO_PARAMETER
-   If Not CheckForAPIError(SafeArrayGetDim(Parameters())) = 0 Then
-      FirstParameter = LBound(Parameters())
-      LastParameter = UBound(Parameters())
+
+EindeProcedure:
+   EersteParameter = GEEN_PARAMETER
+   LaatsteParameter = GEEN_PARAMETER
+   If Not ControleerOpAPIFout(SafeArrayGetDim(Parameters())) = 0 Then
+      EersteParameter = LBound(Parameters())
+      LaatsteParameter = UBound(Parameters())
       QueryParameters = Parameters(ParameterIndex)
    End If
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-'This procedure handles any query result read errors that occur.
-Public Function QueryResultReadError(Optional Row As Long = 0, Optional Column As Long = 0, Optional ColumnName As String = vbNullString, Optional DoNotAskForChoice As Boolean = True) As Long
-Dim ErrorCode As Long
-Dim ErrorDescription As String
-Dim Message As String
-Dim Source As String
-Static Choice As Long
 
-   Source = Err.Source
-   ErrorCode = Err.Number
-   ErrorDescription = Err.Description
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure handelt eventuele queryresultaat lees fouten af.
+Public Function QueryResultaatLeesFout(Optional Rij As Long = 0, Optional Kolom As Long = 0, Optional KolomNaam As String = vbNullString, Optional VraagVorigeKeuzeOp As Boolean = True) As Long
+Dim Bericht As String
+Dim Bron As String
+Dim FoutCode As Long
+Dim FoutOmschrijving As String
+Static Keuze As Long
+
+   Bron = Err.Source
+   FoutCode = Err.Number
+   FoutOmschrijving = Err.Description
    Err.Clear
 
    On Error Resume Next
 
-   If Not DoNotAskForChoice Then
-      Message = "An error has occurred while reading the query result." & vbCr
-      Message = Message & "Row: " & CStr(Row) & vbCr
-      Message = Message & "Column: " & CStr(Column) & vbCr
-      Message = Message & "Column name: " & CStr(ColumnName) & vbCr
-      Message = Message & "Description: " & FormatErrorDescription(ErrorDescription) & vbCr
-      Message = Message & "Error code: " & CStr(ErrorCode)
-      If Not Source = vbNullString Then Message = Message & vbCr & "Source: " & Source
+   If Not VraagVorigeKeuzeOp Then
+      Bericht = "Er is een fout opgetreden bij het uitlezen van het queryresultaat." & vbCr
+      Bericht = Bericht & "Rij: " & CStr(Rij) & vbCr
+      Bericht = Bericht & "Kolom: " & CStr(Kolom) & vbCr
+      Bericht = Bericht & "Kolom naam: " & CStr(KolomNaam) & vbCr
+      Bericht = Bericht & "Omschrijving: " & MaakFoutOmschrijvingOp(FoutOmschrijving) & vbCr
+      Bericht = Bericht & "Foutcode: " & CStr(FoutCode)
+      If Not Bron = vbNullString Then Bericht = Bericht & vbCr & "Bron: " & Bron
 
-      Choice = MsgBox(Message, vbExclamation Or vbAbortRetryIgnore Or vbDefaultButton2)
+      Keuze = MsgBox(Bericht, vbExclamation Or vbAbortRetryIgnore Or vbDefaultButton2)
    End If
 
-   QueryResultReadError = Choice
-End Function
-
-
-'This procedure manages the query results.
-Public Function QueryResults(Optional NewQueryResult As Adodb.Recordset = Nothing, Optional RemoveResults As Boolean = False, Optional ResultIndex As Long = 0, Optional ByRef FirstResult As Long = 0, Optional ByRef LastResult As Long = 0) As QueryResultStructure
-On Error GoTo ErrorTrap
-Dim Column As Long
-Dim Row As Long
-Dim TemporaryTable() As String
-Static Results() As QueryResultStructure
-
-   If Not NewQueryResult Is Nothing Then
-      With NewQueryResult
-         If Not .BOF Then
-            If CheckForAPIError(SafeArrayGetDim(Results())) = 0 Then
-               ReDim Results(0 To 0) As QueryResultStructure
-            Else
-               ReDim Preserve Results(LBound(Results()) To UBound(Results()) + 1) As QueryResultStructure
-            End If
-
-            With Results((UBound(Results())))
-               If CheckForAPIError(SafeArrayGetDim(.ColumnWidth())) = 0 Then ReDim .ColumnWidth(0 To 0) As Long
-               If CheckForAPIError(SafeArrayGetDim(.RightAligned())) = 0 Then ReDim .RightAligned(0 To 0) As Boolean
-               If CheckForAPIError(SafeArrayGetDim(.Table())) = 0 Then ReDim .Table(0 To 0, 0 To 0) As String
-            End With
-
-            Row = 0
-            ReDim Results(UBound(Results())).ColumnWidth(0 To .Fields.Count - 1) As Long
-            ReDim Results(UBound(Results())).RightAligned(0 To .Fields.Count - 1) As Boolean
-            ReDim TemporaryTable(0 To .Fields.Count - 1, 0 To Row) As String
-            For Column = 0 To .Fields.Count - 1
-               TemporaryTable(Column, Row) = Trim$(.Fields.Item(Column).Name)
-               Results(UBound(Results())).ColumnWidth(Column) = Len(TemporaryTable(Column, Row))
-               Results(UBound(Results())).RightAligned(Column) = Not IsLeftAligned(.Fields.Item(Column).Type)
-            Next Column
-            Row = Row + 1
-
-            On Error GoTo ReadError
-            ReDim Preserve TemporaryTable(LBound(TemporaryTable(), 1) To .Fields.Count - 1, LBound(TemporaryTable(), 2) To Row) As String
-            Do Until .EOF
-               For Column = 0 To .Fields.Count - 1
-                  If Not IsNull(.Fields.Item(Column).Value) Then
-                     TemporaryTable(Column, Row) = Trim$(.Fields.Item(Column).Value)
-                     If Len(TemporaryTable(Column, Row)) > Results(UBound(Results())).ColumnWidth(Column) Then Results(UBound(Results())).ColumnWidth(Column) = Len(TemporaryTable(Column, Row)) + 1
-                  End If
-NextValue:
-               Next Column
-               .MoveNext
-               Row = Row + 1
-               ReDim Preserve TemporaryTable(LBound(TemporaryTable(), 1) To .Fields.Count - 1, LBound(TemporaryTable(), 2) To Row) As String
-            Loop
-            On Error GoTo 0
-EndReading:
-
-            ReDim Results(UBound(Results())).Table(0 To Row, 0 To .Fields.Count - 1) As String
-            For Row = LBound(Results(UBound(Results())).Table(), 1) To UBound(Results(UBound(Results())).Table(), 1) - 1
-               For Column = LBound(Results(UBound(Results())).Table(), 2) To UBound(Results(UBound(Results())).Table(), 2)
-                  Results(UBound(Results())).Table(Row, Column) = TemporaryTable(Column, Row)
-               Next Column
-            Next Row
-         End If
-      End With
-   ElseIf RemoveResults Then
-      Erase Results()
-   End If
-
-EndRoutine:
-   FirstResult = NO_RESULT
-   LastResult = NO_RESULT
-   If Not CheckForAPIError(SafeArrayGetDim(Results())) = 0 Then
-      FirstResult = LBound(Results())
-      LastResult = UBound(Results())
-      QueryResults = Results(ResultIndex)
-   End If
-   Exit Function
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-Exit Function
-
-ReadError:
-   If QueryResultReadError(Row, Column, TemporaryTable(Column, 0), DoNotAskForChoice:=False) = vbAbort Then Resume EndReading
-   If QueryResultReadError() = vbIgnore Then Resume NextValue
-   If QueryResultReadError() = vbRetry Then Resume
+   QueryResultaatLeesFout = Keuze
 End Function
 
 
 
-'This procedure returns the query result as text.
-Public Function QueryResultText(Result As QueryResultStructure) As String
-On Error GoTo ErrorTrap
-Dim Column As Long
-Dim LastLine As Long
-Dim ResultText As String
-Dim Row As Long
-Dim Text As String
-Dim Width As Long
+'Deze procedure stuurt het queryresultaat terug als tekst.
+Public Function QueryResultaatTekst(Resultaat As QueryResultaatDefinitie) As String
+On Error GoTo Fout
+Dim Breedte As Long
+Dim Kolom As Long
+Dim LaatsteRegel As Long
+Dim ResultaatTekst As String
+Dim Rij As Long
+Dim Tekst As String
 
-   With Result
-      If Not CheckForAPIError(SafeArrayGetDim(.Table)) = 0 Then
-         If Settings().PreviewLines = NO_MAXIMUM Or Settings().PreviewLines > NumberOfItems(.Table(), Dimension:=1) Then
-            LastLine = NumberOfItems(.Table(), Dimension:=1)
+   With Resultaat
+      If Not ControleerOpAPIFout(SafeArrayGetDim(.Tabel())) = 0 Then
+         If Instellingen().VoorbeeldRegels = GEEN_MAXIMUM Or Instellingen().VoorbeeldRegels > AantalItems(.Tabel(), Dimensie:=1) Then
+            LaatsteRegel = AantalItems(.Tabel(), Dimensie:=1)
          Else
-            LastLine = Settings().PreviewLines - 1
+            LaatsteRegel = Instellingen().VoorbeeldRegels - 1
          End If
-         
-         ResultText = vbNullString
-         For Row = LBound(.Table(), 1) To LastLine
-            For Column = LBound(.Table(), 2) To UBound(.Table(), 2)
-               Width = .ColumnWidth(Column)
-               Text = .Table(Row, Column)
-               Text = Replace(Text, vbCr, " ")
-               Text = Replace(Text, vbLf, " ")
-               Text = Replace(Text, vbTab, " ")
-               If Not Settings().PreviewColumnWidth = NO_MAXIMUM Then
-                  If .ColumnWidth(Column) > Settings().PreviewColumnWidth Then
-                     Width = Settings().PreviewColumnWidth
-                     Text = Left$(Text, Settings().PreviewColumnWidth)
+   
+         ResultaatTekst = vbNullString
+         For Rij = LBound(.Tabel(), 1) To LaatsteRegel
+            For Kolom = LBound(.Tabel(), 2) To UBound(.Tabel(), 2)
+               Breedte = .KolomBreedte(Kolom)
+               Tekst = .Tabel(Rij, Kolom)
+               Tekst = Replace(Tekst, vbCr, " ")
+               Tekst = Replace(Tekst, vbLf, " ")
+               Tekst = Replace(Tekst, vbTab, " ")
+               If Not Instellingen().VoorbeeldKolomBreedte = GEEN_MAXIMUM Then
+                  If .KolomBreedte(Kolom) > Instellingen().VoorbeeldKolomBreedte Then
+                     Breedte = Instellingen().VoorbeeldKolomBreedte
+                     Tekst = Left$(Tekst, Instellingen().VoorbeeldKolomBreedte)
                   End If
                End If
    
-               ResultText = ResultText & Pad(Text, Width, .RightAligned(Column)) & " "
-            Next Column
-            ResultText = ResultText & vbCrLf
+               ResultaatTekst = ResultaatTekst & VulAan(Tekst, Breedte, .RechtsUitlijnen(Kolom)) & " "
+            Next Kolom
+            ResultaatTekst = ResultaatTekst & vbCrLf
             If DoEvents() = 0 Then Exit For
-         Next Row
+         Next Rij
       End If
    End With
-   
-EndRoutine:
-   QueryResultText = ResultText
+
+EindeProcedure:
+   QueryResultaatTekst = ResultaatTekst
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
-'This procedure returns the settings parameter's value and name contained in the specified line of text.
-Private Function ReadParameter(Line As String, ByRef ParameterName As String) As String
-On Error GoTo ErrorTrap
-Dim Position As Long
-Dim Value As String
+'Deze procedure beheert de queryresulaten.
+Public Function QueryResultaten(Optional NieuwQueryResultaat As Adodb.Recordset = Nothing, Optional ResultatenVerwijderen As Boolean = False, Optional ResultaatIndex As Long = 0, Optional ByRef EersteResultaat As Long = 0, Optional ByRef LaatsteResultaat As Long = 0) As QueryResultaatDefinitie
+On Error GoTo Fout
+Dim Kolom As Long
+Dim Rij As Long
+Dim TijdelijkeTabel() As String
+Static Resultaten() As QueryResultaatDefinitie
 
-   ParameterName = vbNullString
-   Value = vbNullString
-   Position = InStr(Line, VALUE_CHARACTER)
-   If Position > 0 Then
-      ParameterName = LCase$(Trim$(Left$(Line, Position - 1)))
-      Value = Trim$(Mid$(Line, Position + 1))
+   If Not NieuwQueryResultaat Is Nothing Then
+      With NieuwQueryResultaat
+         If Not .BOF Then
+            If ControleerOpAPIFout(SafeArrayGetDim(Resultaten())) = 0 Then
+               ReDim Resultaten(0 To 0) As QueryResultaatDefinitie
+            Else
+               ReDim Preserve Resultaten(LBound(Resultaten()) To UBound(Resultaten()) + 1) As QueryResultaatDefinitie
+            End If
+
+            With Resultaten((UBound(Resultaten())))
+               If ControleerOpAPIFout(SafeArrayGetDim(.KolomBreedte())) = 0 Then ReDim .KolomBreedte(0 To 0) As Long
+               If ControleerOpAPIFout(SafeArrayGetDim(.RechtsUitlijnen())) = 0 Then ReDim .RechtsUitlijnen(0 To 0) As Boolean
+               If ControleerOpAPIFout(SafeArrayGetDim(.Tabel())) = 0 Then ReDim .Tabel(0 To 0, 0 To 0) As String
+            End With
+
+            Rij = 0
+            ReDim Resultaten(UBound(Resultaten())).KolomBreedte(0 To .Fields.Count - 1) As Long
+            ReDim Resultaten(UBound(Resultaten())).RechtsUitlijnen(0 To .Fields.Count - 1) As Boolean
+            ReDim TijdelijkeTabel(0 To .Fields.Count - 1, 0 To Rij) As String
+            For Kolom = 0 To .Fields.Count - 1
+               TijdelijkeTabel(Kolom, Rij) = Trim$(.Fields.Item(Kolom).Name)
+               Resultaten(UBound(Resultaten())).KolomBreedte(Kolom) = Len(TijdelijkeTabel(Kolom, Rij))
+               Resultaten(UBound(Resultaten())).RechtsUitlijnen(Kolom) = Not IsLinksUitgelijnd(.Fields.Item(Kolom).Type)
+            Next Kolom
+            Rij = Rij + 1
+
+            On Error GoTo LeesFout
+            ReDim Preserve TijdelijkeTabel(LBound(TijdelijkeTabel(), 1) To .Fields.Count - 1, LBound(TijdelijkeTabel(), 2) To Rij) As String
+            Do Until .EOF
+               For Kolom = 0 To .Fields.Count - 1
+                  If Not IsNull(.Fields.Item(Kolom).Value) Then
+                     TijdelijkeTabel(Kolom, Rij) = Trim$(.Fields.Item(Kolom).Value)
+                     If Len(TijdelijkeTabel(Kolom, Rij)) > Resultaten(UBound(Resultaten())).KolomBreedte(Kolom) Then Resultaten(UBound(Resultaten())).KolomBreedte(Kolom) = Len(TijdelijkeTabel(Kolom, Rij)) + 1
+                  End If
+VolgendeWaarde:
+               Next Kolom
+               .MoveNext
+               Rij = Rij + 1
+               ReDim Preserve TijdelijkeTabel(LBound(TijdelijkeTabel(), 1) To .Fields.Count - 1, LBound(TijdelijkeTabel(), 2) To Rij) As String
+            Loop
+            On Error GoTo 0
+EindeUitlezen:
+
+            ReDim Resultaten(UBound(Resultaten())).Tabel(0 To Rij, 0 To .Fields.Count - 1) As String
+            For Rij = LBound(Resultaten(UBound(Resultaten())).Tabel(), 1) To UBound(Resultaten(UBound(Resultaten())).Tabel(), 1) - 1
+               For Kolom = LBound(Resultaten(UBound(Resultaten())).Tabel(), 2) To UBound(Resultaten(UBound(Resultaten())).Tabel(), 2)
+                  Resultaten(UBound(Resultaten())).Tabel(Rij, Kolom) = TijdelijkeTabel(Kolom, Rij)
+               Next Kolom
+            Next Rij
+         End If
+      End With
+   ElseIf ResultatenVerwijderen Then
+      Erase Resultaten()
    End If
-   
-EndRoutine:
-   ReadParameter = Value
+
+EindeProcedure:
+   EersteResultaat = GEEN_RESULTAAT
+   LaatsteResultaat = GEEN_RESULTAAT
+   If Not ControleerOpAPIFout(SafeArrayGetDim(Resultaten())) = 0 Then
+      EersteResultaat = LBound(Resultaten())
+      LaatsteResultaat = UBound(Resultaten())
+      QueryResultaten = Resultaten(ResultaatIndex)
+   End If
    Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+Exit Function
+
+LeesFout:
+   If QueryResultaatLeesFout(Rij, Kolom, TijdelijkeTabel(Kolom, 0), VraagVorigeKeuzeOp:=False) = vbAbort Then Resume EindeUitlezen
+   If QueryResultaatLeesFout() = vbIgnore Then Resume VolgendeWaarde
+   If QueryResultaatLeesFout() = vbRetry Then Resume
+End Function
+
+'Deze procedure geeft aan of een reeks sessies is afgebroken.
+Public Function SessiesAfbreken(Optional NieuweSessiesAfbreken As Variant) As Boolean
+On Error GoTo Fout
+Static HuidigeSessiesAfbreken As Boolean
    
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+   If Not IsMissing(NieuweSessiesAfbreken) Then HuidigeSessiesAfbreken = CBool(NieuweSessiesAfbreken)
+
+EindeProcedure:
+   SessiesAfbreken = HuidigeSessiesAfbreken
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure beheert de sessie parameters.
+Private Function SessieParameters(Optional Index As Long = 0, Optional NieuweParameter As Variant, Optional Verwijderen As Boolean = False) As String
+On Error GoTo Fout
+Static Parameters As New Collection
+
+   If Not IsMissing(NieuweParameter) Then
+      Parameters.Add CStr(NieuweParameter)
+   ElseIf Verwijderen Then
+      Set Parameters = New Collection
+   End If
+
+EindeProcedure:
+   If Parameters.Count = 0 Then
+      SessieParameters = vbNullString
+   Else
+      SessieParameters = Parameters(Index + 1)
+   End If
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procecure procedure removes any formatting from the specified querycode.
-Private Function RemoveFormatting(QueryCode As String, CommentStart As String, CommentEnd As String, StringCharacters As String) As String
-On Error GoTo ErrorTrap
-Dim Character As String
-Dim CurrentStringCharacter As String
-Dim InComment As Boolean
-Dim Index As Long
-Dim QueryWithoutFormatting As String
-   
-   Character = vbNullString
-   CurrentStringCharacter = vbNullString
-   InComment = False
-   Index = 1
-   QueryWithoutFormatting = vbNullString
-   Do Until Index > Len(QueryCode)
-      Character = Mid$(QueryCode, Index, 1)
 
-      If InComment Then
-         If CommentEnd = vbNullString Then
+
+'Deze procedure sluit alle eventueel geopende vensters af.
+Public Sub SluitAlleVensters()
+On Error GoTo Fout
+Dim Venster As Form
+   
+   For Each Venster In Forms
+      Unload Venster
+   Next Venster
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure sluit de werkmap met opgegeven pad als deze geopend is in Microsoft Excel.
+Private Sub SluitExcelWerkmap(Pad As String)
+On Error GoTo Fout
+Dim WerkMap As Excel.Workbook
+
+   Set WerkMap = GetObject(Pad)
+   WerkMap.Close SaveChanges:=False
+   Set WerkMap = Nothing
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Pad: ", Pad:=Pad) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+
+'Deze procedure stuurt de standaardinstellingen voor dit programma terug.
+Private Function StandaardInstellingen() As InstellingenDefinitie
+On Error GoTo Fout
+Dim ProgrammaInstellingen As InstellingenDefinitie
+
+   With ProgrammaInstellingen
+      .BatchBereik = vbNullString
+      .BatchInteractief = False
+      .BatchQueryPad = vbNullString
+      .Bestand = "Qa.ini"
+      .EMailTekst = vbNullString
+      .ExportAfzender = vbNullString
+      .ExportAutoOpenen = False
+      .ExportAutoOverschrijven = False
+      .ExportAutoVerzenden = False
+      .ExportCCOntvanger = vbNullString
+      .ExportKolomAanvullen = False
+      .ExportOnderwerp = vbNullString
+      .ExportOntvanger = vbNullString
+      .ExportStandaardPad = ".\Export.xls"
+      .QueryAutoSluiten = False
+      .QueryAutoUitvoeren = False
+      .QueryRecordSets = False
+      .QueryTimeout = 10
+      .VerbindingsInformatie = vbNullString
+      .VoorbeeldKolomBreedte = -1
+      .VoorbeeldRegels = 10
+   End With
+
+EindeProcedure:
+   StandaardInstellingen = ProgrammaInstellingen
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure stuurt de status van het queryresultaat terug nadat een query is uitgevoerd.
+Public Function StatusNaQuery(ResultaatIndex As Long) As String
+On Error GoTo Fout
+Dim AantalKolommen As Long
+Dim AantalResultaten As Long
+Dim AantalRijen As Long
+Dim EersteResultaat As Long
+Dim LaatsteResultaat As Long
+Dim Status As String
+
+   With QueryResultaten(, , ResultaatIndex)
+      AantalKolommen = 0
+      AantalResultaten = 0
+      AantalRijen = 0
+      If Not ControleerOpAPIFout(SafeArrayGetDim(.Tabel)) = 0 Then
+         AantalKolommen = AantalItems(.Tabel(), Dimensie:=2) + 1
+         If AantalItems(.Tabel(), Dimensie:=1) = 0 Then AantalKolommen = 0
+         AantalRijen = AantalItems(.Tabel(), Dimensie:=1)
+
+         QueryResultaten , , , EersteResultaat, LaatsteResultaat
+         AantalResultaten = Abs(LaatsteResultaat - EersteResultaat) + 1
+      End If
+
+      Status = "Query uitgevoerd: " & CStr(AantalRijen)
+      If AantalRijen = 1 Then Status = Status & " rij" Else Status = Status & " rijen"
+      Status = Status & " en " & CStr(AantalKolommen)
+      If AantalKolommen = 1 Then Status = Status & " kolom." Else Status = Status & " kolommen."
+
+      If AantalResultaten > 1 Then Status = Status & " Resultaat " & CStr((ResultaatIndex - EersteResultaat) + 1) & " van " & CStr(AantalResultaten) & "."
+
+      If Instellingen().VoorbeeldRegels >= 0 Then
+         Status = Status & " Voorbeeld limiet: " & CStr(Instellingen().VoorbeeldRegels)
+         If Instellingen().VoorbeeldRegels = 1 Then Status = Status & " regel." Else Status = Status & " regels."
+      End If
+   End With
+
+EindeProcedure:
+   StatusNaQuery = Status
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure toont de programmainformatie.
+Public Sub ToonProgrammaInformatie()
+On Error GoTo Fout
+   With App
+      MsgBox .Comments, vbInformation, .Title & " " & ProgrammaVersie() & " - " & "door: " & .CompanyName & ", " & "2009-2016"
+   End With
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure toont het opgegeven queryresultaat.
+Public Sub ToonQueryResultaat(QueryResultaatVeld As TextBox, ResultaatIndex As Long)
+On Error GoTo Fout
+Dim ResultaatTekst As String
+
+   ToonStatus "Bezig met maken van voorbeeld weergave voor queryresultaat..." & vbCrLf
+   ResultaatTekst = QueryResultaatTekst(QueryResultaten(, , ResultaatIndex))
+   QueryResultaatVeld.Text = ResultaatTekst
+   If InterfaceVenster.Visible And Len(QueryResultaatVeld.Text) < Len(ResultaatTekst) Then MsgBox "Het queryresultaat kan niet volledig worden weergegeven.", vbInformation
+EindeProcedure:
+   ToonStatus StatusNaQuery(ResultaatIndex) & vbCrLf
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+
+'Deze procedure toont de opgegeven tekst in het opgegeven veld.
+Public Sub ToonStatus(Optional Tekst As String = vbNullString, Optional NieuwVeld As TextBox = Nothing)
+On Error GoTo Fout
+Dim VorigeLengte As Long
+Static Veld As TextBox
+
+   If Not NieuwVeld Is Nothing Then Set Veld = NieuwVeld
+
+   If Not Veld Is Nothing Then
+      With Veld
+         VorigeLengte = Len(.Text)
+         .Text = .Text & Tekst
+         If Len(.Text) < VorigeLengte + Len(Tekst) Then .Text = Tekst
+         .SelStart = Len(.Text) - Len(Tekst)
+         .SelLength = 0
+      End With
+   End If
+
+   DoEvents
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+'Deze procedure toont de verbindingsstatus.
+Public Sub ToonVerbindingsstatus()
+On Error GoTo Fout
+   If VerbindingGeopend(Verbinding()) Then
+      ToonStatus "Verbonden met de database. - Instellingen: " & Instellingen().Bestand & vbCrLf
+   Else
+      ToonStatus "Er is geen verbinding met een database." & vbCrLf
+   End If
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+
+
+'Deze procedure beheert de verbinding met een database.
+Public Function Verbinding(Optional VerbindingsInformatie As String = vbNullString, Optional VerbindingSluiten As Boolean = False, Optional Reset As Boolean = False) As Adodb.Connection
+On Error GoTo Fout
+Static DataBaseVerbinding As New Adodb.Connection
+
+   If Not DataBaseVerbinding Is Nothing Then
+      If Reset Then
+         DataBaseVerbinding.Errors.Clear
+      ElseIf Not VerbindingsInformatie = vbNullString Then
+         If Not MaakVerbindingsInformatieOp(VerbindingsInformatie) = vbNullString Then DataBaseVerbinding.Open VerbindingsInformatie
+      ElseIf VerbindingSluiten Then
+         If VerbindingGeopend(DataBaseVerbinding) Then
+            DataBaseVerbinding.Close
+            Set DataBaseVerbinding = Nothing
+         End If
+      End If
+   End If
+
+EindeProcedure:
+   Set Verbinding = DataBaseVerbinding
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure controleert of de opgegeven verbinding geopend is.
+Public Function VerbindingGeopend(VerbindingO As Adodb.Connection) As Boolean
+On Error GoTo Fout
+Dim Geopend As Boolean
+
+   If Not VerbindingO Is Nothing Then Geopend = (VerbindingO.State = adStateOpen)
+
+EindeProcedure:
+   VerbindingGeopend = Geopend
+   Exit Function
+
+Fout:
+   Geopend = False
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procecure vervangt de symbolen in de opgegeven tekst met de tekst waar ze voor staan.
+Public Function VervangSymbolen(Tekst As String) As String
+On Error GoTo Fout
+Dim Symbool As String
+Dim SymboolBegin As Long
+Dim SymboolEinde As Long
+Dim TekstMetSymbolen As String
+Dim TekstZonderSymbolen As String
+
+   TekstMetSymbolen = Tekst
+   TekstZonderSymbolen = vbNullString
+   Do
+      SymboolBegin = InStr(TekstMetSymbolen, SYMBOOL_TEKEN)
+      If SymboolBegin = 0 Then
+         TekstZonderSymbolen = TekstZonderSymbolen & TekstMetSymbolen
+         Exit Do
+      Else
+         SymboolEinde = InStr(SymboolBegin + 1, TekstMetSymbolen, SYMBOOL_TEKEN)
+         If SymboolEinde = 0 Then
+            TekstZonderSymbolen = TekstZonderSymbolen & TekstMetSymbolen
+            Exit Do
+         Else
+            TekstZonderSymbolen = TekstZonderSymbolen & Left$(TekstMetSymbolen, SymboolBegin - 1)
+            Symbool = Mid$(TekstMetSymbolen, SymboolBegin + 1, (SymboolEinde - SymboolBegin) - 1)
+            TekstMetSymbolen = Mid$(TekstMetSymbolen, SymboolEinde + 1)
+
+            If Symbool = vbNullString Then
+               ParameterSymboolFout "Een leeg symbool is gevonden. Deze wordt genegeerd."
+            Else
+               TekstZonderSymbolen = TekstZonderSymbolen & VerwerkSymbool(Symbool)
+            End If
+         End If
+      End If
+   Loop
+
+EindeProcedure:
+   VervangSymbolen = TekstZonderSymbolen
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure verwerkt de batchinstellingen.
+Private Function VerwerkBatchInstellingen(Regel As String, Sectie As String, ByRef BatchInstellingen As InstellingenDefinitie) As Boolean
+On Error GoTo Fout
+Dim ParameterNaam As String
+Dim Verwerkt As Boolean
+Dim Waarde As String
+
+   ParameterNaam = vbNullString
+   Verwerkt = True
+   Waarde = LeesParameter(Regel, ParameterNaam)
+
+   With BatchInstellingen
+      Select Case ParameterNaam
+         Case "bereik"
+            .BatchBereik = Waarde
+         Case "interactief"
+            .BatchInteractief = CBool(Waarde)
+         Case "querypad"
+            .BatchQueryPad = Waarde
+         Case Else
+            If InstellingenFout("Niet herkende parameter.", BatchInstellingen.Bestand, Sectie, Regel) = vbCancel Then Verwerkt = False
+      End Select
+   End With
+EindeProcedure:
+   VerwerkBatchInstellingen = Verwerkt
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Instellingenbestand: ", Pad:=BatchInstellingen.Bestand, ExtraInformatie:="Sectie: " & Sectie & vbCr & "Regel: " & Regel) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure verwerkt de exportinstellingen.
+Private Function VerwerkExportInstellingen(Regel As String, Sectie As String, ByRef ExportInstellingen As InstellingenDefinitie) As Boolean
+On Error GoTo Fout
+Dim ParameterNaam As String
+Dim Verwerkt As Boolean
+Dim Waarde As String
+
+   ParameterNaam = vbNullString
+   Verwerkt = True
+   Waarde = LeesParameter(Regel, ParameterNaam)
+
+   With ExportInstellingen
+      Select Case ParameterNaam
+         Case "afzender"
+            .ExportAfzender = Waarde
+         Case "autoopenen"
+            .ExportAutoOpenen = CBool(Waarde)
+         Case "autooverschrijven"
+            .ExportAutoOverschrijven = CBool(Waarde)
+         Case "autoverzenden"
+            .ExportAutoVerzenden = CBool(Waarde)
+         Case "ccontvanger"
+            .ExportCCOntvanger = Waarde
+         Case "kolomaanvullen"
+            .ExportKolomAanvullen = CBool(Waarde)
+         Case "onderwerp"
+            .ExportOnderwerp = Waarde
+         Case "ontvanger"
+            .ExportOntvanger = Waarde
+         Case "standaardpad"
+            .ExportStandaardPad = Waarde
+         Case Else
+            If InstellingenFout("Niet herkende parameter.", ExportInstellingen.Bestand, Sectie, Regel) = vbCancel Then Verwerkt = False
+      End Select
+   End With
+EindeProcedure:
+   VerwerkExportInstellingen = Verwerkt
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Instellingenbestand: ", Pad:=ExportInstellingen.Bestand, ExtraInformatie:="Sectie: " & Sectie & vbCr & "Regel: " & Regel) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure stuurt de verbindingsinformatie met de opgegeven inloggegevens terug.
+Public Function VerwerkInlogGegevens(Gebruiker As String, Wachtwoord As String, VerbindingsInformatie As String) As String
+On Error GoTo Fout
+Dim LinkerDeel As String
+Dim Positie As Long
+Dim RechterDeel As String
+Dim VerwerkteInlogGegevens As String
+
+   VerwerkteInlogGegevens = VerbindingsInformatie
+
+   Positie = InStr(UCase$(VerwerkteInlogGegevens), GEBRUIKER_VARIABEL)
+   If Positie > 0 Then
+      LinkerDeel = Left$(VerwerkteInlogGegevens, Positie - 1)
+      RechterDeel = Mid$(VerwerkteInlogGegevens, Positie + Len(GEBRUIKER_VARIABEL))
+      VerwerkteInlogGegevens = LinkerDeel & Gebruiker & RechterDeel
+   End If
+
+   Positie = InStr(UCase$(VerwerkteInlogGegevens), WACHTWOORD_VARIABEL)
+   If Positie > 0 Then
+      LinkerDeel = Left$(VerwerkteInlogGegevens, Positie - 1)
+      RechterDeel = Mid$(VerwerkteInlogGegevens, Positie + Len(WACHTWOORD_VARIABEL))
+      VerwerkteInlogGegevens = LinkerDeel & Wachtwoord & RechterDeel
+   End If
+
+EindeProcedure:
+   VerwerkInlogGegevens = VerwerkteInlogGegevens
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure verwerkt de queryinstellingen.
+Private Function VerwerkQueryInstellingen(Regel As String, Sectie As String, ByRef QueryInstellingen As InstellingenDefinitie) As Boolean
+On Error GoTo Fout
+Dim ParameterNaam As String
+Dim Verwerkt As Boolean
+Dim Waarde As String
+
+   ParameterNaam = vbNullString
+   Verwerkt = True
+   Waarde = LeesParameter(Regel, ParameterNaam)
+
+   With QueryInstellingen
+      Select Case ParameterNaam
+         Case "autosluiten"
+            .QueryAutoSluiten = CBool(Waarde)
+         Case "autouitvoeren"
+            .QueryAutoUitvoeren = CBool(Waarde)
+         Case "recordsets"
+            .QueryRecordSets = CBool(Waarde)
+         Case "timeout"
+            .QueryTimeout = CLng(Waarde)
+         Case Else
+            If InstellingenFout("Niet herkende parameter.", QueryInstellingen.Bestand, Sectie, Regel) = vbCancel Then Verwerkt = False
+      End Select
+   End With
+EindeProcedure:
+   VerwerkQueryInstellingen = Verwerkt
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Instellingenbestand: ", Pad:=QueryInstellingen.Bestand, ExtraInformatie:="Sectie: " & Sectie & vbCr & "Regel: " & Regel) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure verwerkt de opgegeven sessie lijst.
+Public Function VerwerkSessieLijst(Optional SessieLijstPad As String = vbNullString) As String
+On Error GoTo Fout
+Dim BestandHandle As Long
+Dim SessieParameters As String
+Static HuidigeSessieLijstPad As String
+
+   If Not SessieLijstPad = vbNullString Then
+      SessiesAfbreken NieuweSessiesAfbreken:=False
+      BestandHandle = FreeFile()
+      HuidigeSessieLijstPad = SessieLijstPad
+      Open HuidigeSessieLijstPad For Input Lock Read Write As BestandHandle
+         Do Until EOF(BestandHandle) Or SessiesAfbreken()
+            Line Input #BestandHandle, SessieParameters
+            If Not Trim$(SessieParameters) = vbNullString Then VoerSessieUit SessieParameters
+         Loop
+      Close BestandHandle
+   End If
+
+EindeProcedure:
+   VerwerkSessieLijst = HuidigeSessieLijstPad
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Sessielijst: ", Pad:=HuidigeSessieLijstPad) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+
+
+'Deze procedure stuurt de door het opgegeven symbool vertegenwoordigde waarde terug.
+Private Function VerwerkSymbool(Symbool As String) As String
+On Error GoTo Fout
+Dim Bericht As String
+Dim IsGetal As Boolean
+Dim SymboolArgument As String
+Dim Waarde As String
+
+   On Error GoTo IsGeenGetal
+   IsGetal = CStr(CLng(Val(Symbool))) = Symbool
+   On Error GoTo Fout
+
+   If IsGetal Then
+      If CLng(Val(Symbool)) = 0 Then
+         Waarde = BestandsSysteem().GetBaseName(Query().Pad)
+      Else
+         Waarde = QueryParameters(, CLng(Val(Symbool)) - 1).Invoer
+      End If
+   Else
+      SymboolArgument = Mid$(Symbool, 2)
+      Symbool = Left$(Symbool, 1)
+
+      Select Case Symbool
+         Case "D"
+            Waarde = Format$(Day(Date), "00") & Format$(Month(Date), "00") & CStr(Year(Date))
+         Case "b"
+            If CStr(CLng(Val(SymboolArgument))) = SymboolArgument Then Waarde = InteractieveBatchParameters(CLng(Val(SymboolArgument)))
+         Case "c"
+            If CStr(CLng(Val(SymboolArgument))) = SymboolArgument Then Waarde = ChrW$(CLng(Val(SymboolArgument)))
+         Case "d"
+            Waarde = Format$(Day(Date), "00")
+         Case "e"
+            Waarde = Environ$(SymboolArgument)
+         Case "j"
+            Waarde = Format$(Year(Date), "0000")
+         Case "m"
+            Waarde = Format$(Month(Date), "00")
+         Case "s"
+            If CStr(CLng(Val(SymboolArgument))) = SymboolArgument Then Waarde = SessieParameters(CLng(Val(SymboolArgument)))
+         Case Else
+            If Not Symbool = vbNullString Then ParameterSymboolFout "Symbool """ & Symbool & """ is onbekend. Deze wordt genegeerd."
+      End Select
+   End If
+
+EindeProcedure:
+   VerwerkSymbool = Waarde
+   Exit Function
+
+Fout:
+   Bericht = "Symbool """ & Symbool & """ veroorzaakt de volgende fout: " & vbCr
+   Bericht = Bericht & Err.Description & "." & vbCr
+   Bericht = Bericht & "Foutcode: " & Err.Number
+   ParameterSymboolFout Bericht
+   Resume EindeProcedure
+
+IsGeenGetal:
+   IsGetal = False
+   Resume Next
+End Function
+
+'Deze procedure verwerkt de voorbeeldinstellingen.
+Private Function VerwerkVoorbeeldInstellingen(Regel As String, Sectie As String, ByRef VoorbeeldInstellingen As InstellingenDefinitie) As Boolean
+On Error GoTo Fout
+Dim ParameterNaam As String
+Dim Verwerkt As Boolean
+Dim Waarde As String
+
+   ParameterNaam = vbNullString
+   Verwerkt = True
+   Waarde = LeesParameter(Regel, ParameterNaam)
+
+   With VoorbeeldInstellingen
+      Select Case ParameterNaam
+         Case "kolombreedte"
+            .VoorbeeldKolomBreedte = CLng(Waarde)
+         Case "regels"
+            .VoorbeeldRegels = CLng(Waarde)
+         Case Else
+            If InstellingenFout("Niet herkende parameter.", VoorbeeldInstellingen.Bestand, Sectie, Regel) = vbCancel Then Verwerkt = False
+      End Select
+   End With
+EindeProcedure:
+   VerwerkVoorbeeldInstellingen = Verwerkt
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, TypePad:="Instellingenbestand: ", Pad:=VoorbeeldInstellingen.Bestand, ExtraInformatie:="Sectie: " & Sectie & vbCr & "Regel: " & Regel) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure verwijdert eventuele aanhalingstekens aan het begin en/of eind van het opgegeven pad.
+Public Function VerwijderAanhalingsTekens(Pad As String) As String
+On Error GoTo Fout
+Dim PadZonderAanhalingsTekens As String
+
+   PadZonderAanhalingsTekens = Pad
+   If Left$(PadZonderAanhalingsTekens, 1) = """" Then PadZonderAanhalingsTekens = Mid$(PadZonderAanhalingsTekens, 2)
+   If Right$(PadZonderAanhalingsTekens, 1) = """" Then PadZonderAanhalingsTekens = Left$(PadZonderAanhalingsTekens, Len(PadZonderAanhalingsTekens) - 1)
+
+EindeProcedure:
+   VerwijderAanhalingsTekens = PadZonderAanhalingsTekens
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procecure verwijdert eventuele opmaak uit de opgegeven querycode.
+Private Function VerwijderOpmaak(QueryCode As String, CommentaarBegin As String, CommentaarEinde As String, TekenreeksTekens As String) As String
+On Error GoTo Fout
+Dim HuidigStringTeken As String
+Dim InCommentaar As Boolean
+Dim Index As Long
+Dim QueryZonderOpmaak As String
+Dim Teken As String
+
+   HuidigStringTeken = vbNullString
+   InCommentaar = False
+   Index = 1
+   QueryZonderOpmaak = vbNullString
+   Teken = vbNullString
+   Do Until Index > Len(QueryCode)
+      Teken = Mid$(QueryCode, Index, 1)
+
+      If InCommentaar Then
+         If CommentaarEinde = vbNullString Then
             If Mid$(QueryCode, Index, 1) = vbCr Or Mid$(QueryCode, Index, 1) = vbLf Then
-               CurrentStringCharacter = vbNullString
-               InComment = False
-               Character = " "
+               HuidigStringTeken = vbNullString
+               InCommentaar = False
+               Teken = " "
             End If
          Else
-            If Mid$(QueryCode, Index, Len(CommentEnd)) = CommentEnd Then
-               CurrentStringCharacter = vbNullString
-               InComment = False
-               Index = Index + (Len(CommentEnd) - 1)
-               Character = " "
+            If Mid$(QueryCode, Index, Len(CommentaarEinde)) = CommentaarEinde Then
+               HuidigStringTeken = vbNullString
+               InCommentaar = False
+               Index = Index + (Len(CommentaarEinde) - 1)
+               Teken = " "
             End If
          End If
       Else
-         If InStr(STRING_CHARACTERS, Mid$(QueryCode, Index, 1)) > 0 Then
-            If CurrentStringCharacter = vbNullString Then
-               CurrentStringCharacter = Character
-            ElseIf Character = CurrentStringCharacter Then
-               CurrentStringCharacter = vbNullString
+         If InStr(TekenreeksTekens, Mid$(QueryCode, Index, 1)) > 0 Then
+            If HuidigStringTeken = vbNullString Then
+               HuidigStringTeken = Teken
+            ElseIf Teken = HuidigStringTeken Then
+               HuidigStringTeken = vbNullString
             End If
-         ElseIf Mid$(QueryCode, Index, Len(CommentStart)) = CommentStart Then
-            If CurrentStringCharacter = vbNullString Then InComment = True
+         ElseIf Mid$(QueryCode, Index, Len(CommentaarBegin)) = CommentaarBegin Then
+            If HuidigStringTeken = vbNullString Then InCommentaar = True
          End If
       End If
 
-      If Not InComment Then
-         If CurrentStringCharacter = vbNullString Then
-            If Mid$(QueryCode, Index, 1) = vbCr Or Mid$(QueryCode, Index, 1) = vbLf Then Character = " "
+      If Not InCommentaar Then
+         If HuidigStringTeken = vbNullString Then
+            If Mid$(QueryCode, Index, 1) = vbCr Or Mid$(QueryCode, Index, 1) = vbLf Then Teken = " "
 
-            If InStr(vbTab & " ", Character) > 0 Then
-               Character = " "
-               If Right$(QueryWithoutFormatting, 1) = " " Then Character = vbNullString
+            If InStr(vbTab & " ", Teken) > 0 Then
+               Teken = " "
+               If Right$(QueryZonderOpmaak, 1) = " " Then Teken = vbNullString
             End If
          End If
 
-         QueryWithoutFormatting = QueryWithoutFormatting & Character
+         QueryZonderOpmaak = QueryZonderOpmaak & Teken
       End If
 
       Index = Index + 1
    Loop
-   
-EndRoutine:
-   RemoveFormatting = QueryWithoutFormatting
+
+EindeProcedure:
+   VerwijderOpmaak = QueryZonderOpmaak
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
+'Deze procedure voert een querybatch uit.
+Private Sub VoerBatchUit()
+On Error GoTo Fout
+Dim EersteParameter As Long
+Dim EersteQuery As Long
+Dim EMail As EMailClass
+Dim ExportPad As String
+Dim ExportPaden As New Collection
+Dim ExportUitgevoerd As Boolean
+Dim FoutInformatie As String
+Dim Index As Long
+Dim LaatsteParameter As Long
+Dim LaatsteQuery As Long
+Dim Positie As Long
+Dim QueryIndex As Long
+Dim QueryPad As String
+Dim QueryPadExtensie As String
 
-'Deze procecure vervangt de symbolen in de opgegeven tekst met de tekst waar ze voor staan.
-Public Function ReplaceSymbols(Text As String) As String
-On Error GoTo ErrorTrap
-Dim Symbol As String
-Dim SymbolEnd As Long
-Dim SymbolStart As Long
-Dim TextWithoutSymbols As String
-Dim TextWithSymbols As String
-      
-   TextWithSymbols = Text
-   TextWithoutSymbols = vbNullString
-   Do
-      SymbolStart = InStr(TextWithSymbols, SYMBOL_CHARACTER)
-      If SymbolStart = 0 Then
-         TextWithoutSymbols = TextWithoutSymbols & TextWithSymbols
-         Exit Do
-      Else
-         SymbolEnd = InStr(SymbolStart + 1, TextWithSymbols, SYMBOL_CHARACTER)
-         If SymbolEnd = 0 Then
-            TextWithoutSymbols = TextWithoutSymbols & TextWithSymbols
-            Exit Do
+   ToonVerbindingsstatus
+
+   With Instellingen()
+      Positie = InStr(.BatchBereik, "-")
+      If Not Positie = 0 Then
+         EersteQuery = CLng(Val(Trim$(Left$(.BatchBereik, Positie - 1))))
+         LaatsteQuery = CLng(Val(Trim$(Mid$(.BatchBereik, Positie + 1))))
+         QueryPadExtensie = "." & BestandsSysteem().GetExtensionName(.BatchQueryPad)
+
+         If CStr(EersteQuery) = Trim$(Left$(.BatchBereik, Positie - 1)) And CStr(LaatsteQuery) = Trim$(Mid$(.BatchBereik, Positie + 1)) And EersteQuery <= LaatsteQuery Then
+            For QueryIndex = EersteQuery To LaatsteQuery
+               QueryPad = VerwijderAanhalingsTekens(Left$(.BatchQueryPad, Len(.BatchQueryPad) - Len(QueryPadExtensie)) & CStr(QueryIndex) & QueryPadExtensie)
+   
+               If Query(QueryPad).Geopend Then
+                  QueryParameters Query().Code
+
+                  If .BatchInteractief And QueryIndex = EersteQuery Then
+                     InteractieveBatchAfbreken BatchAfbreken:=True
+                     InterfaceVenster.Show
+
+                     If Not Trim$(Command$()) = vbNullString Then ToonStatus "Opdrachtregel: " & Command$() & vbCrLf
+                     If Not VerwerkSessieLijst() = vbNullString Then ToonStatus "Sessie lijst: " & VerwerkSessieLijst() & vbCrLf
+                     ToonStatus "Query: " & QueryPad & vbCrLf
+
+                     Do While DoEvents() > 0 And InterfaceVenster.Enabled: ControleerOpAPIFout WaitMessage(): Loop
+                     If InteractieveBatchAfbreken() Then Exit Sub
+   
+                     Screen.MousePointer = vbHourglass
+                     InteractieveBatchParameters , , Verwijderen:=True
+                     QueryParameters , , , EersteParameter, LaatsteParameter
+                     For Index = EersteParameter To LaatsteParameter
+                        InteractieveBatchParameters , QueryParameters(, Index).Invoer
+                     Next Index
+                  Else
+                     If QueryIndex = EersteQuery Then
+                        If Not Trim$(Command$()) = vbNullString Then ToonStatus "Opdrachtregel: " & Command$() & vbCrLf
+                        If Not VerwerkSessieLijst() = vbNullString Then ToonStatus "Sessie lijst: " & VerwerkSessieLijst() & vbCrLf
+                     End If
+
+                     ToonStatus "Query: " & QueryPad & vbCrLf
+   
+                     QueryParameters , , , EersteParameter, LaatsteParameter
+                     For Index = EersteParameter To LaatsteParameter
+                        With QueryParameters(, Index)
+                           QueryParameters , Index, .StandaardWaarde & Mid$(.Masker, Len(.StandaardWaarde) + 1)
+                           If Not (.Commentaar = vbNullString And .Masker = vbNullString And .ParameterNaam = vbNullString) Then ParameterSymboolFout "Genegeerde elementen in batch query gevonden.", Index
+                        End With
+                     Next Index
+                  End If
+   
+                  If OngeldigeParameterInvoer(FoutInformatie) = GEEN_PARAMETER Then
+                     ToonStatus "Bezig met het uitvoeren van de query..." & vbCrLf
+                     QueryResultaten , ResultatenVerwijderen:=True
+                     VoerQueryUit Query().Code
+   
+                     If VerbindingGeopend(Verbinding()) Then
+                        If Verbinding().Errors.Count = 0 Then
+                           ToonStatus StatusNaQuery(ResultaatIndex:=0) & vbCrLf
+                           If Not .ExportStandaardPad = vbNullString Then
+                              ToonStatus "Bezig met het exporteren van het queryresultaat..." & vbCrLf
+                              ExportPad = BestandsSysteem().GetAbsolutePathName(VerwijderAanhalingsTekens(Trim$(VervangSymbolen(.ExportStandaardPad))))
+                     
+                              If BestandsSysteem().FolderExists(BestandsSysteem().GetParentFolderName(ExportPad)) Then
+                                 ExportPaden.Add ExportPad
+                                 ExportUitgevoerd = ExporteerResultaat(ExportPad)
+                                 If ExportUitgevoerd Then
+                                    If BestandsSysteem().FileExists(ExportPad) And .ExportAutoOpenen Then
+                                       ToonStatus "De export wordt automatisch geopend..." & vbCrLf
+                                       ControleerOpAPIFout ShellExecuteA(CLng(0), "open", ExportPad, vbNullString, vbNullString, SW_SHOWNORMAL)
+                                    End If
+   
+                                    ToonStatus "Exporteren gereed." & vbCrLf
+                                 Else
+                                    ToonStatus "Export afgebroken." & vbCrLf
+                                 End If
+                              Else
+                                 MsgBox "Ongeldig export pad." & vbCr & "Huidig pad: " & CurDir$(), vbExclamation
+                                 ToonStatus "Ongeldig export pad." & vbCrLf
+                              End If
+                           Else
+                              ToonStatus FoutenLijstTekst(Verbinding().Errors)
+                           End If
+                        End If
+                        
+                        Verbinding , , Reset:=True
+                     End If
+                  Else
+                     ParameterSymboolFout "Ongeldige parameter invoer: " & FoutInformatie
+                  End If
+               End If
+            Next QueryIndex
+   
+            If (Not .ExportStandaardPad = vbNullString) And ExportUitgevoerd Then
+               If Not (.ExportOntvanger = vbNullString And .ExportCCOntvanger = vbNullString) Then
+                  ToonStatus "Bezig met het maken van de e-mail met de export..." & vbCrLf
+                  Set EMail = New EMailClass
+                  EMail.VoegQueryResultatenToe , ExportPaden
+                  Set EMail = Nothing
+               End If
+            End If
          Else
-            TextWithoutSymbols = TextWithoutSymbols & Left$(TextWithSymbols, SymbolStart - 1)
-            Symbol = Mid$(TextWithSymbols, SymbolStart + 1, (SymbolEnd - SymbolStart) - 1)
-            TextWithSymbols = Mid$(TextWithSymbols, SymbolEnd + 1)
-            
-            If Symbol = vbNullString Then
-               ParameterSymbolError "An empty symbol has been found. It will be ignored."
-            Else
-               TextWithoutSymbols = TextWithoutSymbols & ProcessSymbol(Symbol)
-           End If
+            MsgBox "Ongeldige querybatchbereik: """ & .BatchBereik & """.", vbExclamation
          End If
       End If
-   Loop
-   
-EndRoutine:
-   ReplaceSymbols = TextWithoutSymbols
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-'This procedure request the user to specify the information for a connection with a database.
-Private Function RequestConnectionInformation() As String
-On Error GoTo ErrorTrap
-Dim ConnectionInformation As String
-
-   Do While Trim$(ConnectionInformation) = vbNullString
-      ConnectionInformation = InputBox$("Information to connect with a database:")
-      If StrPtr(ConnectionInformation) = 0 Then
-         Exit Do
-      ElseIf Trim$(ConnectionInformation) = vbNullString Then
-         MsgBox "This information is required.", vbExclamation
-      End If
-   Loop
-
-EndRoutine:
-   RequestConnectionInformation = Trim$(ConnectionInformation)
-   Exit Function
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-'This procedure opens a dialog window with which the user can browse to the path for the query result to be exported.
-Public Function RequestExportPath(CurrentExportPath As String) As String
-On Error GoTo ErrorTrap
-Dim ExportPathDialog As OPENFILENAME
-Dim NewExportPath As String
-
-   NewExportPath = CurrentExportPath
-
-   With ExportPathDialog
-      .hInstance = CLng(0)
-      .hwndOwner = CLng(0)
-      .lCustData = CLng(0)
-      .lpfnHook = CLng(0)
-      .lpstrCustomFilter = vbNullString
-      .lpstrDefExt = vbNullString
-      .lpstrFile = String$(MAX_STRING, vbNullChar) & vbNullChar
-      .lpstrFileTitle = String$(MAX_STRING, vbNullChar) & vbNullChar
-      .lpTemplateName = vbNullString
-      .lStructSize = Len(ExportPathDialog)
-      .nFileExtension = CLng(0)
-      .nFileOffset = CLng(0)
-      .nFilterIndex = CLng(1)
-      .nMaxCustomFilter = CLng(0)
-      .nMaxFile = Len(.lpstrFile)
-      .nMaxFileTitle = Len(.lpstrFileTitle)
-   
-      .flags = CDLOFNEXPLORER
-      .flags = .flags Or CDLOFNHIDEREADONLY
-      .flags = .flags Or CDLOFNLONGNAMES
-      .flags = .flags Or CDLOFNNOCHANGEDIR
-      .flags = .flags Or CDLOFNPATHMUSTEXIST
-      .lpstrTitle = "Export the query result to:" & vbNullChar
-      .lpstrFilter = "Text file (*.txt)" & vbNullChar & "*.txt" & vbNullChar
-      .lpstrFilter = .lpstrFilter & "Microsoft Excel file (*.xls)" & vbNullChar & "*.xls" & vbNullChar
-      .lpstrFilter = .lpstrFilter & "Microsoft Excel 2007 file (*.xlsx)" & vbNullChar & "*.xlsx" & vbNullChar
-      .lpstrFilter = .lpstrFilter & vbNullChar
-      .lpstrInitialDir = App.Path & vbNullChar
-   
-      If CBool(CheckForAPIError(GetSaveFileNameA(ExportPathDialog))) Then NewExportPath = Left$(.lpstrFile, InStr(.lpstrFile, vbNullChar) - 1)
-   End With
-EndRoutine:
-   RequestExportPath = NewExportPath
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure opens a dialog window with which the user can browse to a query file.
-Public Function RequestQueryPath() As String
-On Error GoTo ErrorTrap
-Dim QueryPath As String
-Dim QueryPathDialog As OPENFILENAME
-   
-   QueryPath = vbNullString
-
-   With QueryPathDialog
-      .hInstance = CLng(0)
-      .hwndOwner = CLng(0)
-      .lCustData = CLng(0)
-      .lpfnHook = CLng(0)
-      .lpstrCustomFilter = vbNullString
-      .lpstrDefExt = vbNullString
-      .lpstrFile = String$(MAX_STRING, vbNullChar) & vbNullChar
-      .lpstrFileTitle = String$(MAX_STRING, vbNullChar) & vbNullChar
-      .lpTemplateName = vbNullString
-      .lStructSize = Len(QueryPathDialog)
-      .nFileExtension = CLng(0)
-      .nFileOffset = CLng(0)
-      .nFilterIndex = CLng(1)
-      .nMaxCustomFilter = CLng(0)
-      .nMaxFile = Len(.lpstrFile)
-      .nMaxFileTitle = Len(.lpstrFileTitle)
-   
-
-      .flags = CDLOFNEXPLORER
-      .flags = .flags Or CDLOFNFILEMUSTEXIST
-      .flags = .flags Or CDLOFNHIDEREADONLY
-      .flags = .flags Or CDLOFNLONGNAMES
-      .flags = .flags Or CDLOFNNOCHANGEDIR
-      .flags = .flags Or CDLOFNPATHMUSTEXIST
-      .lpstrTitle = "Select a query:" & vbNullChar
-      .lpstrFilter = "Query Assistant query files (*.qa)" & vbNullChar & "*.qa" & vbNullChar
-      .lpstrFilter = .lpstrFilter & vbNullChar
-   
-      .lpstrInitialDir = App.Path & vbNullChar
-      If CBool(CheckForAPIError(GetOpenFileNameA(QueryPathDialog))) Then QueryPath = Left$(.lpstrFile, InStr(.lpstrFile, vbNullChar) - 1)
    End With
 
-EndRoutine:
-   RequestQueryPath = QueryPath
-   Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure saves this program's settings.
-Private Sub SaveSettings(SettingsPath As String, SettingsToBeSaved As SettingsStructure, Message As String)
-On Error GoTo ErrorTrap
-Dim FileHandle As Long
-
-   FileHandle = FreeFile()
-   Open SettingsPath For Output Lock Read Write As FileHandle
-      With SettingsToBeSaved
-         Print #FileHandle, SECTION_NAME_START & "BATCH" & SECTION_NAME_END
-         Print #FileHandle, "Interactive" & VALUE_CHARACTER & CStr(.BatchInteractive)
-         Print #FileHandle, "QueryPath" & VALUE_CHARACTER & .BatchQueryPath
-         Print #FileHandle, "Range" & VALUE_CHARACTER & .BatchRange
-         Print #FileHandle,
-
-         Print #FileHandle, SECTION_NAME_START & "CONNECTION" & SECTION_NAME_END
-         Print #FileHandle, .ConnectionInformation
-         Print #FileHandle,
-
-         Print #FileHandle, SECTION_NAME_START & "EMAILTEXT" & SECTION_NAME_END
-         Print #FileHandle, .EMailText
-         Print #FileHandle,
-
-         Print #FileHandle, SECTION_NAME_START & "EXPORT" & SECTION_NAME_END
-         Print #FileHandle, "AutoOpen" & VALUE_CHARACTER & CStr(.ExportAutoOpen)
-         Print #FileHandle, "AutoOverwrite" & VALUE_CHARACTER & CStr(.ExportAutoOverwrite)
-         Print #FileHandle, "AutoSend" & VALUE_CHARACTER & CStr(.ExportAutoSend)
-         Print #FileHandle, "CCRecipient" & VALUE_CHARACTER & .ExportCCRecipient
-         Print #FileHandle, "DefaultPath" & VALUE_CHARACTER & .ExportDefaultPath
-         Print #FileHandle, "PadColumn" & VALUE_CHARACTER & CStr(.ExportPadColumn)
-         Print #FileHandle, "Recipient" & VALUE_CHARACTER & .ExportRecipient
-         Print #FileHandle, "Sender" & VALUE_CHARACTER & .ExportSender
-         Print #FileHandle, "Subject" & VALUE_CHARACTER & .ExportSubject
-         Print #FileHandle,
-
-         Print #FileHandle, SECTION_NAME_START & "PREVIEW" & SECTION_NAME_END
-         Print #FileHandle, "ColumnWidth" & VALUE_CHARACTER & CStr(.PreviewColumnWidth)
-         Print #FileHandle, "Rows" & VALUE_CHARACTER & CStr(.PreviewLines)
-         Print #FileHandle,
-
-         Print #FileHandle, SECTION_NAME_START & "QUERY" & SECTION_NAME_END
-         Print #FileHandle, "AutoClose" & VALUE_CHARACTER & CStr(.QueryAutoClose)
-         Print #FileHandle, "AutoExecute" & VALUE_CHARACTER & CStr(.QueryAutoExecute)
-         Print #FileHandle, "Recordsets" & VALUE_CHARACTER & CStr(.QueryRecordSets)
-         Print #FileHandle, "Timeout" & VALUE_CHARACTER & CStr(.QueryTimeout)
-      End With
-   Close FileHandle
-
-   MsgBox Message & vbCr & SettingsPath, vbInformation
-
-EndRoutine:
-   Close FileHandle
+EindeProcedure:
+   Screen.MousePointer = vbDefault
+   Unload InterfaceVenster
    Exit Sub
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False, TypePath:="Settings file: ", Path:=SettingsPath) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Sub
 
-'This procedure manages the session parameters.
-Private Function SessionParameters(Optional Index As Long = 0, Optional NewParameter As Variant, Optional Remove As Boolean = False) As String
-On Error GoTo ErrorTrap
-Static Parameters As New Collection
 
-   If Not IsMissing(NewParameter) Then
-      Parameters.Add CStr(NewParameter)
-   ElseIf Remove Then
-      Set Parameters = New Collection
+'Deze procedure voert een query uit op een database.
+Public Sub VoerQueryUit(QueryCode As String)
+On Error GoTo Fout
+Dim Commando As New Adodb.Command
+Dim Resultaat As Adodb.Recordset
+Dim QueryPad As String
+
+   QueryPad = Query().Pad
+
+   If VerbindingGeopend(Verbinding()) Then
+      Set Commando.ActiveConnection = Verbinding()
+
+      If Not Commando Is Nothing Then
+         Commando.CommandText = VulParametersIn(QueryCode)
+         Commando.CommandText = VerwijderOpmaak(Commando.CommandText, SQL_COMMENTAAR_REGEL_BEGIN, SQL_COMMENTAAR_REGEL_EINDE, TEKENREEKS_TEKENS)
+         Commando.CommandText = VerwijderOpmaak(Commando.CommandText, SQL_COMMENTAAR_BLOK_BEGIN, SQL_COMMENTAAR_BLOK_EINDE, TEKENREEKS_TEKENS)
+         Commando.CommandTimeout = Instellingen().QueryTimeout
+         Commando.CommandType = adCmdText
+
+         Set Resultaat = Commando.Execute
+      End If
+
+      Do While VerbindingGeopend(Resultaat.ActiveConnection)
+         QueryResultaten Resultaat
+
+         If Instellingen().QueryRecordSets Then Set Resultaat = Resultaat.NextRecordset Else Exit Do
+      Loop
    End If
 
-EndRoutine::
-   If Parameters.Count = 0 Then
-      SessionParameters = vbNullString
-   Else
-      SessionParameters = Parameters(Index + 1)
+EindeProcedure:
+   ToonStatus "Uitgevoerde query: " & vbCrLf & Commando.CommandText & vbCrLf
+
+   If Not Resultaat Is Nothing Then
+      If VerbindingGeopend(Resultaat.ActiveConnection) Then Resultaat.Close
    End If
-   Exit Function
 
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
+   Set Commando = Nothing
+   Set Resultaat = Nothing
+   Exit Sub
 
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False, ExtraInformatie:="Query: " & QueryPad) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
 
+'Deze procedure voert een sessie met de opgegeven parameters uit.
+Private Sub VoerSessieUit(SessieParameters As String)
+On Error GoTo Fout
+Static RecensteVerbindingsInformatie As String
 
-
-'This procedure returns this program's settings.
-Public Function Settings(Optional SettingsPath As String = vbNullString) As SettingsStructure
-On Error GoTo ErrorTrap
-Dim Message As String
-Static ProgramSettings As SettingsStructure
-
-   If Not SettingsPath = vbNullString Then
-      If FileSystemO().FileExists(SettingsPath) Then
-         ProgramSettings = LoadSettings(SettingsPath)
-      Else
-         Message = "Cannot find settings file." & vbCr
-         Message = Message & "Settings file: " & SettingsPath & vbCr
-         Message = Message & "Generate this file?" & vbCr
-         Message = Message & "Current path: " & CurDir$()
-         If MsgBox(Message, vbQuestion Or vbYesNo Or vbDefaultButton2) = vbYes Then
-            SaveSettings SettingsPath, DefaultSettings(), "The default settings have been written to:"
-            ProgramSettings = LoadSettings(SettingsPath)
+   With OpdrachtRegelParameters(SessieParameters)
+      If .Verwerkt Then
+         If .InstellingenPad = vbNullString Then
+            Instellingen BestandsSysteem().BuildPath(App.Path, StandaardInstellingen().Bestand)
+         Else
+            Instellingen .InstellingenPad
          End If
-      End If
-   End If
-
-EndRoutine:
-   Settings = ProgramSettings
-   Exit Function
    
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
+         With Instellingen()
+            If Not .VerbindingsInformatie = RecensteVerbindingsInformatie Then
+               Verbinding , VerbindingSluiten:=True
+               If InStr(UCase$(.VerbindingsInformatie), GEBRUIKER_VARIABEL) > 0 Or InStr(UCase(.VerbindingsInformatie), WACHTWOORD_VARIABEL) > 0 Then
+                  InloggenVenster.Show vbModal
+               Else
+                  Verbinding .VerbindingsInformatie
+               End If
+            End If
+      
+            RecensteVerbindingsInformatie = .VerbindingsInformatie
+         End With
 
-
-'This procedure displays settings file related errors.
-Private Function SettingsError(Message As String, Optional SettingsPath As String = vbNullString, Optional Section As String = vbNullString, Optional Line As String = vbNullString, Optional Fatal As Boolean = False) As Long
-On Error GoTo ErrorTrap
-Dim Choice As Long
-Dim Style As Long
-
-   If Not Section = vbNullString Then Message = Message & vbCr & "Section: " & Section
-   If Not Line = vbNullString Then Message = Message & vbCr & "Line: " & """" & Line & """"
-   If Not SettingsPath = vbNullString Then Message = Message & vbCr & "Settings file: " & SettingsPath
-
-   Style = vbExclamation
-   If Not Fatal Then Style = Style Or vbOKCancel Or vbDefaultButton1
-   Choice = MsgBox(Message, Style)
-
-EndRoutine:
-   SettingsError = Choice
-   Exit Function
-
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
-End Function
-
-
-'This procedure returns the query result's status after a query has been executed.
-Public Function StatusAfterQuery(ResultIndex As Long) As String
-On Error GoTo ErrorTrap
-Dim ColumnCount As Long
-Dim FirstResult As Long
-Dim LastResult As Long
-Dim ResultCount As Long
-Dim RowCount As Long
-Dim Status As String
-
-   With QueryResults(, , ResultIndex)
-      ColumnCount = 0
-      ResultCount = 0
-      RowCount = 0
-      If Not CheckForAPIError(SafeArrayGetDim(.Table)) = 0 Then
-         ColumnCount = NumberOfItems(.Table(), Dimension:=2) + 1
-         If NumberOfItems(.Table(), Dimension:=1) = 0 Then ColumnCount = 0
-         RowCount = NumberOfItems(.Table(), Dimension:=1)
-
-         QueryResults , , , FirstResult, LastResult
-         ResultCount = Abs(LastResult - FirstResult) + 1
-      End If
-
-      Status = "Query executed: " & CStr(RowCount)
-      If RowCount = 1 Then Status = Status & " row" Else Status = Status & " rows"
-      Status = Status & " and " & CStr(ColumnCount)
-      If ColumnCount = 1 Then Status = Status & " column." Else Status = Status & " columns."
-
-      If ResultCount > 1 Then Status = Status & " Result " & CStr((ResultIndex - FirstResult) + 1) & " of " & CStr(ResultCount) & "."
-
-      If Settings().PreviewLines >= 0 Then
-         Status = Status & " Preview limit: " & CStr(Settings().PreviewLines)
-         If Settings().PreviewLines = 1 Then Status = Status & " row." Else Status = Status & " rows."
-      End If
+         If VerbindingGeopend(Verbinding()) Then
+            If BatchModusActief() Then
+               VoerBatchUit
+            Else
+               InterfaceVenster.Show
+               Do While DoEvents() > 0: ControleerOpAPIFout WaitMessage(): Loop
+            End If
+        End If
+     End If
    End With
 
-EndRoutine:
-   StatusAfterQuery = Status
+EindeProcedure:
+   Exit Sub
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Sub
+
+
+
+'Deze procedure opent een dialoogvenster waarmee de gebruiker naar het pad voor het te exporteren queryresultaat kan bladeren.
+Public Function VraagExportPad(HuidigExportPad As String) As String
+On Error GoTo Fout
+Dim ExportPadDialoog As OPENFILENAME
+Dim NieuwExportPad As String
+
+   NieuwExportPad = HuidigExportPad
+
+   With ExportPadDialoog
+      .hInstance = CLng(0)
+      .hwndOwner = CLng(0)
+      .lCustData = CLng(0)
+      .lpfnHook = CLng(0)
+      .lpstrCustomFilter = vbNullString
+      .lpstrDefExt = vbNullString
+      .lpstrFile = String$(MAX_STRING, vbNullChar) & vbNullChar
+      .lpstrFileTitle = String$(MAX_STRING, vbNullChar) & vbNullChar
+      .lpTemplateName = vbNullString
+      .lStructSize = Len(ExportPadDialoog)
+      .nFileExtension = CLng(0)
+      .nFileOffset = CLng(0)
+      .nFilterIndex = CLng(1)
+      .nMaxCustomFilter = CLng(0)
+      .nMaxFile = Len(.lpstrFile)
+      .nMaxFileTitle = Len(.lpstrFileTitle)
+
+      .flags = OFN_EXPLORER
+      .flags = .flags Or OFN_HIDEREADONLY
+      .flags = .flags Or OFN_LONGNAMES
+      .flags = .flags Or OFN_NOCHANGEDIR
+      .flags = .flags Or OFN_PATHMUSTEXIST
+      .lpstrTitle = "Exporteer het queryresultaat naar:" & vbNullChar
+      .lpstrFilter = "Tekstbestand (*.txt)" & vbNullChar & "*.txt" & vbNullChar
+      .lpstrFilter = .lpstrFilter & "Microsoft Excel bestand (*.xls)" & vbNullChar & "*.xls" & vbNullChar
+      .lpstrFilter = .lpstrFilter & "Microsoft Excel 2007 bestand (*.xlsx)" & vbNullChar & "*.xlsx" & vbNullChar
+      .lpstrFilter = .lpstrFilter & vbNullChar
+      .lpstrInitialDir = App.Path & vbNullChar
+
+      If CBool(ControleerOpAPIFout(GetSaveFileNameA(ExportPadDialoog))) Then NieuwExportPad = Left$(.lpstrFile, InStr(.lpstrFile, vbNullChar) - 1)
+   End With
+EindeProcedure:
+   VraagExportPad = NieuwExportPad
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure opent een dialoogvenster waarmee de gebruiker naar een querybestand kan bladeren.
+Public Function VraagQueryPad() As String
+On Error GoTo Fout
+Dim QueryPad As String
+Dim QueryPadDialoog As OPENFILENAME
+
+   QueryPad = vbNullString
+
+   With QueryPadDialoog
+      .hInstance = CLng(0)
+      .hwndOwner = CLng(0)
+      .lCustData = CLng(0)
+      .lpfnHook = CLng(0)
+      .lpstrCustomFilter = vbNullString
+      .lpstrDefExt = vbNullString
+      .lpstrFile = String$(MAX_STRING, vbNullChar) & vbNullChar
+      .lpstrFileTitle = String$(MAX_STRING, vbNullChar) & vbNullChar
+      .lpTemplateName = vbNullString
+      .lStructSize = Len(QueryPadDialoog)
+      .nFileExtension = CLng(0)
+      .nFileOffset = CLng(0)
+      .nFilterIndex = CLng(1)
+      .nMaxCustomFilter = CLng(0)
+      .nMaxFile = Len(.lpstrFile)
+      .nMaxFileTitle = Len(.lpstrFileTitle)
+
+      .flags = OFN_EXPLORER
+      .flags = .flags Or OFN_FILEMUSTEXIST
+      .flags = .flags Or OFN_HIDEREADONLY
+      .flags = .flags Or OFN_LONGNAMES
+      .flags = .flags Or OFN_NOCHANGEDIR
+      .flags = .flags Or OFN_PATHMUSTEXIST
+      .lpstrTitle = "Selecteer een query:" & vbNullChar
+      .lpstrFilter = "Tekstbestanden (*.txt)" & vbNullChar & "*.txt" & vbNullChar
+      .lpstrFilter = .lpstrFilter & vbNullChar
+
+      .lpstrInitialDir = App.Path & vbNullChar
+      If CBool(ControleerOpAPIFout(GetOpenFileNameA(QueryPadDialoog))) Then QueryPad = Left$(.lpstrFile, InStr(.lpstrFile, vbNullChar) - 1)
+   End With
+
+EindeProcedure:
+   VraagQueryPad = QueryPad
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure vraagt de gebruiker om de gegevens voor een verbinding met een database op te geven.
+Private Function VraagVerbindingsInformatie() As String
+On Error GoTo Fout
+Dim VerbindingsInformatie As String
+
+   Do While Trim$(VerbindingsInformatie) = vbNullString
+      VerbindingsInformatie = InputBox$("Informatie voor een verbinding met een database:")
+      If StrPtr(VerbindingsInformatie) = 0 Then
+         Exit Do
+      ElseIf Trim$(VerbindingsInformatie) = vbNullString Then
+         MsgBox "Deze informatie is vereist.", vbExclamation
+      End If
+   Loop
+
+EindeProcedure:
+   VraagVerbindingsInformatie = Trim$(VerbindingsInformatie)
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
 
-'This procedure removes any leading/trailing quote from the specified path.
-Public Function Unquote(Path As String) As String
-On Error GoTo ErrorTrap
-Dim UnquotedPath As String
-   
-   UnquotedPath = Path
-   If Left$(UnquotedPath, 1) = """" Then UnquotedPath = Mid$(UnquotedPath, 2)
-   If Right$(UnquotedPath, 1) = """" Then UnquotedPath = Left$(UnquotedPath, Len(UnquotedPath) - 1)
-   
-EndRoutine:
-   Unquote = UnquotedPath
+'Deze procedure vult de opgegeven tekst aan met het opgegeven aantal spaties.
+Private Function VulAan(Tekst As String, Breedte As Long, Optional LinksAanvullen As Boolean = False) As String
+On Error GoTo Fout
+Dim AangevuldeTekst As String
+
+   AangevuldeTekst = Tekst
+   If Len(AangevuldeTekst) > Breedte Then AangevuldeTekst = Left$(AangevuldeTekst, Breedte)
+   If LinksAanvullen Then
+      AangevuldeTekst = Space$(Breedte - Len(AangevuldeTekst)) & AangevuldeTekst
+   Else
+      AangevuldeTekst = AangevuldeTekst & Space$(Breedte - Len(AangevuldeTekst))
+   End If
+
+EindeProcedure:
+   VulAan = AangevuldeTekst
    Exit Function
-   
-ErrorTrap:
-   If HandleError(DoNotAskForChoice:=False) = vbIgnore Then Resume EndRoutine
-   If HandleError() = vbRetry Then Resume
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
+End Function
+
+'Deze procedure vult de parameter invoer in de querycode in.
+Private Function VulParametersIn(QueryCode As String) As String
+On Error GoTo Fout
+Dim EersteParameter As Long
+Dim Index As Long
+Dim LaatsteParameter As Long
+Dim Positie As Long
+Dim QueryMetParameters As String
+Dim QueryZonderParameters As String
+
+   QueryParameters , , , EersteParameter, LaatsteParameter
+   If EersteParameter = GEEN_PARAMETER And LaatsteParameter = GEEN_PARAMETER Then
+      QueryMetParameters = QueryCode
+   Else
+      Index = EersteParameter
+      QueryMetParameters = vbNullString
+      QueryZonderParameters = QueryCode
+      Do Until Index > LaatsteParameter
+         SessieParameters , QueryParameters(, Index).Invoer
+
+         Positie = QueryParameters(, Index).Positie
+         QueryMetParameters = QueryMetParameters & Left$(QueryZonderParameters, Positie - 1)
+         QueryMetParameters = QueryMetParameters & VervangSymbolen(QueryParameters(, Index).Invoer)
+         QueryZonderParameters = Mid$(QueryZonderParameters, Positie + QueryParameters(, Index).Lengte)
+         Index = Index + 1
+      Loop
+      QueryMetParameters = QueryMetParameters & QueryZonderParameters
+   End If
+EindeProcedure:
+   VulParametersIn = QueryMetParameters
+   Exit Function
+
+Fout:
+   If HandelFoutAf(VraagVorigeKeuzeOp:=False) = vbIgnore Then Resume EindeProcedure
+   If HandelFoutAf() = vbRetry Then Resume
 End Function
 
