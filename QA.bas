@@ -39,7 +39,7 @@ Private Const OFN_NOCHANGEDIR As Long = &H8&
 Private Const OFN_PATHMUSTEXIST  As Long = &H800&
 
 Public Declare Function ShellExecuteA Lib "Shell32.dll" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
-Private Declare Function FormatMessageA Lib "Kernel32.dll" (ByVal dwFlags As Long, lpSource As Long, ByVal dwBerichtId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, Arguments As Long) As Long
+Private Declare Function FormatMessageA Lib "Kernel32.dll" (ByVal dwFlags As Long, lpSource As Long, ByVal dwMessageId As Long, ByVal dwLanguageId As Long, ByVal lpBuffer As String, ByVal nSize As Long, Arguments As Long) As Long
 Private Declare Function GetOpenFileNameA Lib "Comdlg32.dll" (pOpenfilename As OPENFILENAME) As Long
 Private Declare Function GetSaveFileNameA Lib "Comdlg32.dll" (pOpenfilename As OPENFILENAME) As Long
 Private Declare Function SafeArrayGetDim Lib "Oleaut32.dll" (ByRef saArray() As Any) As Long
