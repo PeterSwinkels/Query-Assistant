@@ -202,7 +202,7 @@ End Function
 
 
 'This procedure checks whether an error has occurred during the most recent API function call.
-Public Function CheckForAPIError(TerugGestuurd As Long, Optional ExtraInformation As String = Empty) As Long
+Public Function CheckForAPIError(TerugGestuurd As Long, Optional ExtraInformation As String = vbNullString) As Long
 Dim Description As String
 Dim ErrorCode As Long
 Dim Message As String
