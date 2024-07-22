@@ -30,7 +30,7 @@ EndRoutine:
    Exit Function
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Function
 
@@ -55,7 +55,7 @@ EndRoutine:
    Exit Sub
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Sub
 
@@ -76,7 +76,7 @@ EndRoutine:
    Exit Sub
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Sub
 
@@ -90,7 +90,7 @@ EndRoutine:
    Exit Sub
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Sub
 
@@ -111,7 +111,7 @@ EndRoutine:
    Exit Sub
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Sub
 
@@ -128,7 +128,7 @@ EndRoutine:
    Exit Sub
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Sub
 
@@ -141,7 +141,7 @@ EndRoutine:
    Exit Sub
 
 ErrorTrap:
-   If HandleError(ReturnPreviousChoice:=True) = vbIgnore Then Resume EndRoutine
+   If HandleError(ReturnPreviousChoice:=False) = vbIgnore Then Resume EndRoutine
    If HandleError() = vbRetry Then Resume
 End Sub
 
