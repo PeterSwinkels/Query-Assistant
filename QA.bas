@@ -60,65 +60,65 @@ End Enum
 
 'This structure defines this program's settings.
 Public Type SettingsStructure
-   BatchInteractive As Boolean        'Indicates whether the user must first specify any parameters before a batch can be executed.
-   BatchQueryPath As String           'Contains the path and/or filename without indexes of the query's in a batch to be executed.
-   BatchRange As String               'Contains the indexes of the first and last query in a batch to be executed.
-   ConnectionInformation As String    'Contains the information required for a connection with a database.
-   EMailText As String                'Contains the text of the e-mail with the exported results.
-   ExportAutoOpen As Boolean          'Indicates whether an export is opened automatically after having been exported.
-   ExportAutoOverwrite As Boolean     'Indicates whether a file is automatically overwritten while exporting the query results.
-   ExportAutoSend As Boolean          'Indicates whether the e-mail with the exported results is sent automatically.
-   ExportCCRecipient As String        'Contains the e-mail address to which the exported result's copy is sent.
-   ExportDefaultPath As String        'Contains the default path for the export of query results.
-   ExportPadColumn As Boolean         'Indicates whether the data in a column should be padded with spaces.
-   ExportRecipient As String          'Contains the e-mail address to which the exported query results are sent.
-   ExportSender As String             'Contains the e-mail containing the exported results' sender.
-   ExportSubject As String            'Contains the e-mail with the exported results' subject.
-   FileName As String                 'Contains the path and/or filename of the program's settings file.
-   QueryAutoClose As Boolean          'Indicates whether this program after executing a query and export is closed automatically.
-   QueryAutoExecute As Boolean        'Indicates whether a query is automatically executed after having been loaded.
-   QueryRecordSets As Boolean         'Indicates whether the database can return more than one recordset as the result of a query.
-   QueryTimeout As Long               'Contains the number of seconds the program will wait for the query result after the command to execute the query has been given.
-   PreviewColumnWidth As Long         'Contains the maximum column width used to display the query result in the preview window.
-   PreviewLines As Long               'Contains the maximum number of lines that is displayed of the query result in the preview window.
+   BatchInteractive As Boolean        'Defines whether the user must first specify any parameters before a batch can be executed.
+   BatchQueryPath As String           'Defines the path and/or filename without indexes of the query's in a batch to be executed.
+   BatchRange As String               'Defines the indexes of the first and last query in a batch to be executed.
+   ConnectionInformation As String    'Defines the information required for a connection with a database.
+   EMailText As String                'Defines the text of the e-mail with the exported results.
+   ExportAutoOpen As Boolean          'Defines whether an export is opened automatically after having been exported.
+   ExportAutoOverwrite As Boolean     'Defines whether a file is automatically overwritten while exporting the query results.
+   ExportAutoSend As Boolean          'Defines whether the e-mail with the exported results is sent automatically.
+   ExportCCRecipient As String        'Defines the e-mail address to which the exported result's copy is sent.
+   ExportDefaultPath As String        'Defines the default path for the export of query results.
+   ExportPadColumn As Boolean         'Defines whether the data in a column should be padded with spaces.
+   ExportRecipient As String          'Defines the e-mail address to which the exported query results are sent.
+   ExportSender As String             'Defines the e-mail containing the exported results' sender.
+   ExportSubject As String            'Defines the e-mail with the exported results' subject.
+   FileName As String                 'Defines the path and/or filename of the program's settings file.
+   QueryAutoClose As Boolean          'Defines whether this program after executing a query and export is closed automatically.
+   QueryAutoExecute As Boolean        'Defines whether a query is automatically executed after having been loaded.
+   QueryRecordSets As Boolean         'Defines whether the database can return more than one recordset as the result of a query.
+   QueryTimeout As Long               'Defines the number of seconds the program will wait for the query result after the command to execute the query has been given.
+   PreviewColumnWidth As Long         'Defines the maximum column width used to display the query result in the preview window.
+   PreviewLines As Long               'Defines the maximum number of lines that is displayed of the query result in the preview window.
 End Type
 
 'This structure defines the parameter information for the selected query.
 Public Type QueryParameterStructure
-   Comments As String            'The comments for the parameter.
-   DefaultValue As String        'The default value for the parameter.
-   FixedInput As String          'The parameter definition's fixed input.
-   FixedMask As String           'The input mask merged with the fixed input.
-   InputBoxIsVisible As Boolean  'Indicates whether the parameter's input box is visible.
-   Length As Long                'The parameter definition's length.
-   LengthIsVariable As Boolean   'Indicates whether variable length input is allowed.
-   Mask As String                'The parameter's input mask.
-   ParameterName As String       'The parameter's name.
-   Position As Long              'The parameter's position relative to the previous parameter's position.
-   Properties As String          'The parameter defintion's properties.
-   Value As String               'The user's input.
+   Comments As String            'Defines the comments for the parameter.
+   DefaultValue As String        'Defines the default value for the parameter.
+   FixedInput As String          'Defines the parameter definition's fixed input.
+   FixedMask As String           'Defines the input mask merged with the fixed input.
+   InputBoxIsVisible As Boolean  'Defines whether the parameter's input box is visible.
+   Length As Long                'Defines the parameter definition's length.
+   LengthIsVariable As Boolean   'Defines whether variable length input is allowed.
+   Mask As String                'Defines the parameter's input mask.
+   ParameterName As String       'Defines the parameter's name.
+   Position As Long              'Defines parameter's position relative to the previous parameter's position.
+   Properties As String          'Defines the parameter defintion's properties.
+   Value As String               'Defines the user's input.
 End Type
 
 'This structure defines any command line arguments specified when starting this program.
 Public Type CommandLineArgumentsStructure
-   SettingsPath As String     'Contains the specified settings path.
-   QueryPath As String        'Contains the specified query path.
-   SessionPath As String      'Containsthe  specified session list path.
-   Processed As Boolean       'Indicates whether the command line arguments were processed without errors.
+   SettingsPath As String     'Defines the specified settings path.
+   QueryPath As String        'Defines the specified query path.
+   SessionPath As String      'Defines the  specified session list path.
+   Processed As Boolean       'Defines whether the command line arguments were processed without errors.
 End Type
 
 'This structure defines a query.
 Public Type QueryStructure
-   Code As String             'A query's code.
-   Path As String             'A query file's path.
-   Opened As Boolean          'Indicates whether a query could be opened.
+   Code As String             'Defines a query's code.
+   Path As String             'Defines a query file's path.
+   Opened As Boolean          'Defines whether a query could be opened.
 End Type
 
 'This structure defines a query's result.
 Public Type QueryResultStructure
-   ColumnWidth() As Long     'Indicates the information's maximum width in bytes for each column.
-   RightAligned() As Boolean 'Indicates whether the information will right aligned when displayed.
-   Table() As String         'Contains the information retrieved from a database by a query.
+   ColumnWidth() As Long     'Defines the information's maximum width in bytes for each column.
+   RightAligned() As Boolean 'Defines whether the information will right aligned when displayed.
+   Table() As String         'Defines the information retrieved from a database by a query.
 End Type
 
 Public Const NO_PARAMETER As Long = -1                      'Stands for "no parameter".
